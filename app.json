@@ -1,14 +1,15 @@
 {
   "expo": {
     "name": "Selguudi POS",
-    "slug": "selguudi-mobile",
+    "slug": "selguudimobile",
+    "owner": "huduma-faster",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/faviconmobile.png",
     "userInterfaceStyle": "dark",
     "extra": {
       "eas": {
-        "projectId": "d2797004-a195-4b0e-9e33-66365da3d83d"
+        "projectId": "d2797004-a195-4b0e-9be3-66365da3d83d"
       }
     },
     "splash": {
@@ -20,8 +21,7 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true,
-      "bundleIdentifier": "com.selguudi.pos"
+      "supportsTablet": true
     },
     "android": {
       "adaptiveIcon": {
