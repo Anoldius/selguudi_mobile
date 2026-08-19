@@ -1,24 +1,32 @@
 {
   "expo": {
-    "name": "selguudi_mobile",
-    "slug": "selguudi_mobile",
+    "name": "Selguudi POS",
+    "slug": "selguudi-mobile",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "icon": "./assets/faviconmobile.png",
+    "userInterfaceStyle": "dark",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#020617"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.selguudi.pos"
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/android-icon-foreground.png",
-        "backgroundImage": "./assets/android-icon-background.png",
-        "monochromeImage": "./assets/android-icon-monochrome.png"
-      }
+        "foregroundImage": "./assets/adaptive.png",
+        "backgroundColor": "#020617"
+      },
+      "package": "com.selguudi.pos"
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/faviconmobile.png"
     }
   }
 }
