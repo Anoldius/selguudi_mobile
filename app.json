@@ -6,6 +6,11 @@
     "orientation": "portrait",
     "icon": "./assets/faviconmobile.png",
     "userInterfaceStyle": "dark",
+    "extra": {
+      "eas": {
+        "projectId": "d2797004-a195-4b0e-9e33-66365da3d83d"
+      }
+    },
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
