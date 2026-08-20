@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { StatusBar, Platform } from 'react-native';
 import { 
   View, 
   Text, 

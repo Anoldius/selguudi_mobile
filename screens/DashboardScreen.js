@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { StatusBar, Platform } from 'react-native';
 import { 
   View, 
   Text, 
@@ -9,6 +8,7 @@ import {
   StyleSheet,
   SafeAreaView,
   StatusBar,
+  Platform,
   TouchableOpacity
 } from 'react-native';
 import apiClient from '../api/axios';
