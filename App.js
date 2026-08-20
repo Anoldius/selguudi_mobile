@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, ActivityIndicator, Platform } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -22,7 +22,7 @@ import { LayoutDashboard, ShoppingCart, Package, CreditCard, BarChart3 } from 'l
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
-// 1. Bottom Tab Navigator
+// 1. Bottom Tab Navigator yenye Padding na Height ya Android
 function MainTabNavigator() {
   return (
     <Tab.Navigator
@@ -33,9 +33,15 @@ function MainTabNavigator() {
         tabBarStyle: {
           backgroundColor: '#020617',
           borderTopColor: '#1e293b',
-          height: 70, // Imeongezwa ili isibanwe na navigation bar ya simu
-          paddingBottom: 12, // Icons zimepandishwa juu kidogo
+          height: Platform.OS === 'android' ? 80 : 68, // Urefu zaidi wa bar
+          paddingBottom: Platform.OS === 'android' ? 20 : 10, // Sukuma maneno juu mbali na vitufe vya simu
           paddingTop: 8,
+          elevation: 10,
+        },
+        tabBarLabelStyle: {
+          fontSize: 11,
+          fontWeight: '700',
+          marginTop: 2,
         },
       }}
     >
@@ -44,7 +50,7 @@ function MainTabNavigator() {
         component={DashboardScreen} 
         options={{
           tabBarLabel: 'Home',
-          tabBarIcon: ({ color, size }) => <LayoutDashboard size={size} color={color} />,
+          tabBarIcon: ({ color }) => <LayoutDashboard size={22} color={color} />,
         }}
       />
       <Tab.Screen 
@@ -52,7 +58,7 @@ function MainTabNavigator() {
         component={POSScreen} 
         options={{
           tabBarLabel: 'Mauzo',
-          tabBarIcon: ({ color, size }) => <ShoppingCart size={size} color={color} />,
+          tabBarIcon: ({ color }) => <ShoppingCart size={22} color={color} />,
         }}
       />
       <Tab.Screen 
@@ -60,7 +66,7 @@ function MainTabNavigator() {
         component={InventoryScreen} 
         options={{
           tabBarLabel: 'Stoko',
-          tabBarIcon: ({ color, size }) => <Package size={size} color={color} />,
+          tabBarIcon: ({ color }) => <Package size={22} color={color} />,
         }}
       />
       <Tab.Screen 
@@ -68,7 +74,7 @@ function MainTabNavigator() {
         component={DebtsScreen} 
         options={{
           tabBarLabel: 'Madeni',
-          tabBarIcon: ({ color, size }) => <CreditCard size={size} color={color} />,
+          tabBarIcon: ({ color }) => <CreditCard size={22} color={color} />,
         }}
       />
       <Tab.Screen 
@@ -76,7 +82,7 @@ function MainTabNavigator() {
         component={ReportsScreen} 
         options={{
           tabBarLabel: 'Ripoti',
-          tabBarIcon: ({ color, size }) => <BarChart3 size={size} color={color} />,
+          tabBarIcon: ({ color }) => <BarChart3 size={22} color={color} />,
         }}
       />
     </Tab.Navigator>

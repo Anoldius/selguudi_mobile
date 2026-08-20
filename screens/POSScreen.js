@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { StatusBar, Platform } from 'react-native';
 import { 
   View, 
   Text, 
@@ -340,16 +341,15 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: '#020617',
-  },
-  keyboardContainer: {
-    flex: 1,
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight + 8 : 0, // Nafasi ya kutosha juu
   },
   container: {
-    padding: 16,
-    paddingBottom: 32,
+    paddingHorizontal: 16,
+    paddingTop: 8,
+    paddingBottom: 24,
     backgroundColor: '#020617',
     flexGrow: 1,
-    gap: 16,
+    gap: 14,
   },
   catalogCard: {
     backgroundColor: 'rgba(15, 23, 42, 0.6)',

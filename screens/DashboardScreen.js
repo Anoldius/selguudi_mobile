@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { StatusBar, Platform } from 'react-native';
 import { 
   View, 
   Text, 
@@ -156,13 +157,15 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: '#020617',
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight + 8 : 0, // Nafasi ya kutosha juu
   },
   container: {
     paddingHorizontal: 16,
-    paddingTop: 16,
-    paddingBottom: 40,
+    paddingTop: 8,
+    paddingBottom: 24,
     backgroundColor: '#020617',
     flexGrow: 1,
+    gap: 14,
   },
   loadingContainer: {
     flex: 1,
