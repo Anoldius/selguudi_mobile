@@ -5,7 +5,7 @@
     "owner": "huduma-faster",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/faviconmobile.png",
+    "icon": "./assets/icon.png",
     "userInterfaceStyle": "dark",
     "extra": {
       "eas": {
@@ -26,13 +26,13 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive.png",
+        "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#020617"
       },
       "package": "com.selguudi.pos"
     },
     "web": {
-      "favicon": "./assets/faviconmobile.png"
+      "favicon": "./assets/icon.png"
     }
   }
 }
