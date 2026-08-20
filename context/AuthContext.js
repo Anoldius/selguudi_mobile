@@ -14,13 +14,17 @@ export const AuthProvider = ({ children }) => {
 
   const checkToken = async () => {
     try {
-      const token = await AsyncStorage.getItem('access_token');
-      const userInfo = await AsyncStorage.getItem('user_info');
+      const token = await AsyncStorage.getItem('access_token') || await AsyncStorage.getItem('userToken');
+      const userInfo = await AsyncStorage.getItem('user_info') || await AsyncStorage.getItem('userData');
+      
       if (token && userInfo) {
         setUser(JSON.parse(userInfo));
+      } else {
+        setUser(null);
       }
     } catch (e) {
-      console.error(e);
+      console.error("Auth check error:", e);
+      setUser(null);
     } finally {
       setLoading(false);
     }
@@ -29,19 +33,30 @@ export const AuthProvider = ({ children }) => {
   const login = async (username, password) => {
     try {
       const res = await apiClient.post('auth/login/', { username, password });
-      const { access, refresh, business_name, role, username: uname } = res.data;
+      const { access, refresh, business_name, role, username: uname, business } = res.data;
 
-      await AsyncStorage.setItem('access_token', access);
-      await AsyncStorage.setItem('refresh_token', refresh);
-      const userData = { username: uname, business_name, role };
-      await AsyncStorage.setItem('user_info', JSON.stringify(userData));
+      const userData = { 
+        username: uname, 
+        business_name: business_name || business?.name, 
+        role,
+        business 
+      };
+
+      // Hifadhi kwenye keys zote ili kuzuia mismatch kwenye Axios au Context
+      await AsyncStorage.multiSet([
+        ['access_token', access],
+        ['userToken', access],
+        ['refresh_token', refresh || ''],
+        ['user_info', JSON.stringify(userData)],
+        ['userData', JSON.stringify(userData)]
+      ]);
 
       setUser(userData);
       return { success: true };
     } catch (err) {
       return {
         success: false,
-        message: err.response?.data?.message || err.response?.data?.detail || 'Login imeshindikana!',
+        message: err.response?.data?.message || err.response?.data?.detail || 'Login imeshindikana! Angalia username au password.',
       };
     }
   };
@@ -59,8 +74,20 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = async () => {
-    await AsyncStorage.clear();
-    setUser(null);
+    try {
+      await AsyncStorage.multiRemove([
+        'access_token', 
+        'userToken', 
+        'refresh_token', 
+        'user_info', 
+        'userData'
+      ]);
+      await AsyncStorage.clear();
+    } catch (e) {
+      console.error("Logout error:", e);
+    } finally {
+      setUser(null); // Hii inalazimisha Stack Navigator kurudi kwenye LoginScreen mara moja
+    }
   };
 
   return (

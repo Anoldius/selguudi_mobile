@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -22,7 +22,7 @@ import { LayoutDashboard, ShoppingCart, Package, CreditCard, BarChart3 } from 'l
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
-// 1. Bottom Tab Navigator (Hii inachukua nafasi ya DummyHome)
+// 1. Bottom Tab Navigator
 function MainTabNavigator() {
   return (
     <Tab.Navigator
@@ -33,8 +33,8 @@ function MainTabNavigator() {
         tabBarStyle: {
           backgroundColor: '#020617',
           borderTopColor: '#1e293b',
-          height: 60,
-          paddingBottom: 8,
+          height: 70, // Imeongezwa ili isibanwe na navigation bar ya simu
+          paddingBottom: 12, // Icons zimepandishwa juu kidogo
           paddingTop: 8,
         },
       }}
@@ -90,6 +90,7 @@ function Navigation() {
   if (loading) {
     return (
       <View style={styles.center}>
+        <ActivityIndicator size="large" color="#10b981" />
         <Text style={styles.text}>Inapakia Selguudi...</Text>
       </View>
     );
@@ -126,11 +127,12 @@ const styles = StyleSheet.create({
     flex: 1, 
     backgroundColor: '#020617', 
     justifyContent: 'center', 
-    alignItems: 'center' 
+    alignItems: 'center',
+    gap: 12
   },
   text: { 
-    color: '#10b981', 
-    fontSize: 16, 
-    fontWeight: 'bold' 
+    color: '#94a3b8', 
+    fontSize: 14, 
+    fontWeight: '500' 
   },
 });

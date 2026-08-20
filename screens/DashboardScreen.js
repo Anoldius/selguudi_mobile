@@ -7,14 +7,15 @@ import {
   RefreshControl, 
   StyleSheet,
   SafeAreaView,
-  StatusBar
+  StatusBar,
+  TouchableOpacity
 } from 'react-native';
 import apiClient from '../api/axios';
 import { useAuth } from '../context/AuthContext';
-import { DollarSign, Receipt, TrendingUp, AlertTriangle, Store } from 'lucide-react-native';
+import { DollarSign, Receipt, TrendingUp, AlertTriangle, Store, LogOut } from 'lucide-react-native';
 
 export default function DashboardScreen() {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -101,13 +102,20 @@ export default function DashboardScreen() {
       >
         {/* Top Welcome Banner */}
         <View style={styles.banner}>
-          <View style={styles.bannerTextContainer}>
-            <Text style={styles.welcomeTitle}>
-              Karibu Selguudi 👋
-            </Text>
-            <Text style={styles.welcomeSubtitle}>
-              Muhtasari halisi wa biashara yako kwa siku ya leo.
-            </Text>
+          <View style={styles.bannerHeaderRow}>
+            <View style={styles.bannerTextContainer}>
+              <Text style={styles.welcomeTitle}>
+                Karibu Selguudi 👋
+              </Text>
+              <Text style={styles.welcomeSubtitle}>
+                Muhtasari halisi wa biashara yako kwa siku ya leo.
+              </Text>
+            </View>
+
+            {/* Logout Button */}
+            <TouchableOpacity onPress={logout} style={styles.logoutBtn}>
+              <LogOut size={18} color="#f87171" />
+            </TouchableOpacity>
           </View>
 
           {/* Business Name Badge */}
@@ -176,8 +184,15 @@ const styles = StyleSheet.create({
     padding: 20,
     marginBottom: 20,
   },
-  bannerTextContainer: {
+  bannerHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
     marginBottom: 16,
+  },
+  bannerTextContainer: {
+    flex: 1,
+    marginRight: 12,
   },
   welcomeTitle: {
     fontSize: 22,
@@ -188,6 +203,15 @@ const styles = StyleSheet.create({
     color: '#94a3b8',
     fontSize: 13,
     marginTop: 4,
+  },
+  logoutBtn: {
+    padding: 10,
+    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+    borderColor: 'rgba(239, 68, 68, 0.2)',
+    borderWidth: 1,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   businessBadge: {
     flexDirection: 'row',
