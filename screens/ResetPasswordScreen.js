@@ -6,7 +6,13 @@ import {
   TouchableOpacity, 
   ActivityIndicator, 
   ScrollView, 
-  StyleSheet 
+  StyleSheet,
+  SafeAreaView,
+  StatusBar,
+  KeyboardAvoidingView,
+  Platform,
+  TouchableWithoutFeedback,
+  Keyboard 
 } from 'react-native';
 import apiClient from '../api/axios';
 import { KeyRound, Lock, ArrowLeft, CheckCircle2 } from 'lucide-react-native';
@@ -59,107 +65,129 @@ export default function ResetPasswordScreen({ navigation }) {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
-      <View style={styles.card}>
-        
-        {/* Header */}
-        <View style={styles.header}>
-          <View style={styles.iconWrapper}>
-            <KeyRound size={32} color="#10b981" />
-          </View>
-          <Text style={styles.title}>Weka Password Mpya</Text>
-          <Text style={styles.subtitle}>
-            Ingiza Token/Code uliyopokea pamoja na Password yako mpya.
-          </Text>
-        </View>
-
-        {success ? (
-          <View style={styles.successBox}>
-            <CheckCircle2 size={40} color="#10b981" />
-            <Text style={styles.successTitle}>Password Imebadilishwa Vizuri! 🎉</Text>
-            <Text style={styles.successSubtitle}>Tunakupeleka kwenye ukurasa wa Login...</Text>
-          </View>
-        ) : (
-          <View style={styles.form}>
-            {error ? (
-              <View style={styles.errorBox}>
-                <Text style={styles.errorText}>{error}</Text>
+    <SafeAreaView style={styles.safeArea}>
+      <StatusBar barStyle="light-content" backgroundColor="#020617" />
+      <KeyboardAvoidingView
+        style={styles.keyboardContainer}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+      >
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <ScrollView 
+            contentContainerStyle={styles.container} 
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+          >
+            <View style={styles.card}>
+              
+              {/* Header */}
+              <View style={styles.header}>
+                <View style={styles.iconWrapper}>
+                  <KeyRound size={32} color="#10b981" />
+                </View>
+                <Text style={styles.title}>Weka Password Mpya</Text>
+                <Text style={styles.subtitle}>
+                  Ingiza Token/Code uliyopokea pamoja na Password yako mpya.
+                </Text>
               </View>
-            ) : null}
 
-            {/* Token Input */}
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>TOKEN / CODE YA RESET</Text>
-              <TextInput
-                value={token}
-                onChangeText={setToken}
-                placeholder="Weka Token hapa..."
-                placeholderTextColor="#64748b"
-                autoCapitalize="none"
-                style={[styles.standaloneInput, styles.tokenInput]}
-              />
-            </View>
-
-            {/* New Password Input */}
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>PASSWORD MPYA</Text>
-              <View style={styles.inputWrapper}>
-                <Lock size={18} color="#64748b" style={styles.inputIcon} />
-                <TextInput
-                  value={password}
-                  onChangeText={setPassword}
-                  placeholder="••••••••"
-                  placeholderTextColor="#64748b"
-                  secureTextEntry
-                  style={styles.input}
-                />
-              </View>
-            </View>
-
-            {/* Confirm Password Input */}
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>HAKIKISHA PASSWORD MPYA</Text>
-              <View style={styles.inputWrapper}>
-                <Lock size={18} color="#64748b" style={styles.inputIcon} />
-                <TextInput
-                  value={confirmPassword}
-                  onChangeText={setConfirmPassword}
-                  placeholder="••••••••"
-                  placeholderTextColor="#64748b"
-                  secureTextEntry
-                  style={styles.input}
-                />
-              </View>
-            </View>
-
-            <TouchableOpacity
-              onPress={handleReset}
-              disabled={loading}
-              style={[styles.primaryBtn, loading && styles.btnDisabled]}
-            >
-              {loading ? (
-                <ActivityIndicator color="#020617" />
+              {success ? (
+                <View style={styles.successBox}>
+                  <CheckCircle2 size={40} color="#10b981" />
+                  <Text style={styles.successTitle}>Password Imebadilishwa Vizuri! 🎉</Text>
+                  <Text style={styles.successSubtitle}>Tunakupeleka kwenye ukurasa wa Login...</Text>
+                </View>
               ) : (
-                <Text style={styles.primaryBtnText}>Badilisha Password</Text>
+                <View style={styles.form}>
+                  {error ? (
+                    <View style={styles.errorBox}>
+                      <Text style={styles.errorText}>{error}</Text>
+                    </View>
+                  ) : null}
+
+                  {/* Token Input */}
+                  <View style={styles.inputGroup}>
+                    <Text style={styles.label}>TOKEN / CODE YA RESET</Text>
+                    <TextInput
+                      value={token}
+                      onChangeText={setToken}
+                      placeholder="Weka Token hapa..."
+                      placeholderTextColor="#64748b"
+                      autoCapitalize="none"
+                      style={[styles.standaloneInput, styles.tokenInput]}
+                    />
+                  </View>
+
+                  {/* New Password Input */}
+                  <View style={styles.inputGroup}>
+                    <Text style={styles.label}>PASSWORD MPYA</Text>
+                    <View style={styles.inputWrapper}>
+                      <Lock size={18} color="#64748b" style={styles.inputIcon} />
+                      <TextInput
+                        value={password}
+                        onChangeText={setPassword}
+                        placeholder="••••••••"
+                        placeholderTextColor="#64748b"
+                        secureTextEntry
+                        style={styles.input}
+                      />
+                    </View>
+                  </View>
+
+                  {/* Confirm Password Input */}
+                  <View style={styles.inputGroup}>
+                    <Text style={styles.label}>HAKIKISHA PASSWORD MPYA</Text>
+                    <View style={styles.inputWrapper}>
+                      <Lock size={18} color="#64748b" style={styles.inputIcon} />
+                      <TextInput
+                        value={confirmPassword}
+                        onChangeText={setConfirmPassword}
+                        placeholder="••••••••"
+                        placeholderTextColor="#64748b"
+                        secureTextEntry
+                        style={styles.input}
+                      />
+                    </View>
+                  </View>
+
+                  <TouchableOpacity
+                    onPress={handleReset}
+                    disabled={loading}
+                    style={[styles.primaryBtn, loading && styles.btnDisabled]}
+                  >
+                    {loading ? (
+                      <ActivityIndicator color="#020617" />
+                    ) : (
+                      <Text style={styles.primaryBtnText}>Badilisha Password</Text>
+                    )}
+                  </TouchableOpacity>
+                </View>
               )}
-            </TouchableOpacity>
-          </View>
-        )}
 
-        <TouchableOpacity 
-          onPress={() => navigation.navigate('Login')}
-          style={styles.backLink}
-        >
-          <ArrowLeft size={16} color="#94a3b8" />
-          <Text style={styles.backLinkText}>Rudi Kwenye Login</Text>
-        </TouchableOpacity>
+              <TouchableOpacity 
+                onPress={() => navigation.navigate('Login')}
+                style={styles.backLink}
+              >
+                <ArrowLeft size={16} color="#94a3b8" />
+                <Text style={styles.backLinkText}>Rudi Kwenye Login</Text>
+              </TouchableOpacity>
 
-      </View>
-    </ScrollView>
+            </View>
+          </ScrollView>
+        </TouchableWithoutFeedback>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#020617',
+  },
+  keyboardContainer: {
+    flex: 1,
+  },
   container: {
     flexGrow: 1,
     backgroundColor: '#020617',
@@ -251,7 +279,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
   },
   tokenInput: {
-    fontFamily: 'monospace',
     textAlign: 'center',
     letterSpacing: 2,
   },

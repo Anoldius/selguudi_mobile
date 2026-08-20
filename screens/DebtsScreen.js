@@ -8,7 +8,13 @@ import {
   ActivityIndicator, 
   Alert, 
   Modal, 
-  StyleSheet 
+  StyleSheet,
+  SafeAreaView,
+  StatusBar,
+  KeyboardAvoidingView,
+  Platform,
+  TouchableWithoutFeedback,
+  Keyboard
 } from 'react-native';
 import apiClient from '../api/axios';
 import { 
@@ -163,345 +169,383 @@ export default function DebtsScreen() {
   );
 
   return (
-    <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
-      
-      {/* HEADER SECTION */}
-      <View style={styles.headerCard}>
-        <View style={styles.headerTitleRow}>
-          <CreditCard size={24} color="#10b981" />
-          <Text style={styles.headerTitle}>Daftari la Madeni</Text>
-        </View>
-        <Text style={styles.headerSubtitle}>Simamia madeni ya wateja na rekodi malipo.</Text>
-
-        <View style={styles.actionButtonsRow}>
-          <TouchableOpacity 
-            onPress={() => setShowAddCustomerModal(true)} 
-            style={styles.secondaryBtn}
+    <SafeAreaView style={styles.safeArea}>
+      <StatusBar barStyle="light-content" backgroundColor="#020617" />
+      <KeyboardAvoidingView
+        style={styles.keyboardContainer}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+      >
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <ScrollView 
+            contentContainerStyle={styles.container} 
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
           >
-            <UserPlus size={16} color="#10b981" />
-            <Text style={styles.secondaryBtnText}>Mteja Mpya</Text>
-          </TouchableOpacity>
+            
+            {/* HEADER SECTION */}
+            <View style={styles.headerCard}>
+              <View style={styles.headerTitleRow}>
+                <CreditCard size={24} color="#10b981" />
+                <Text style={styles.headerTitle}>Daftari la Madeni</Text>
+              </View>
+              <Text style={styles.headerSubtitle}>Simamia madeni ya wateja na rekodi malipo.</Text>
 
-          <TouchableOpacity 
-            onPress={() => setShowAddDebtModal(true)} 
-            style={styles.primaryBtn}
-          >
-            <Plus size={18} color="#020617" />
-            <Text style={styles.primaryBtnText}>Sajili Deni</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
+              <View style={styles.actionButtonsRow}>
+                <TouchableOpacity 
+                  onPress={() => setShowAddCustomerModal(true)} 
+                  style={styles.secondaryBtn}
+                >
+                  <UserPlus size={16} color="#10b981" />
+                  <Text style={styles.secondaryBtnText}>Mteja Mpya</Text>
+                </TouchableOpacity>
 
-      {/* STATS CARDS */}
-      <View style={styles.statsGrid}>
-        <View style={styles.statCard}>
-          <View>
-            <Text style={styles.statLabel}>JUMLA YA MADENI</Text>
-            <Text style={styles.statValueDebt}>
-              {totalDebtAmount.toLocaleString()} <Text style={styles.currencyText}>TZS</Text>
-            </Text>
-          </View>
-          <View style={styles.statIconWrapper}>
-            <DollarSign size={20} color="#fbbf24" />
-          </View>
-        </View>
-
-        <View style={styles.statCard}>
-          <View>
-            <Text style={styles.statLabel}>WATEJA WANAODAIWA</Text>
-            <Text style={styles.statValue}>{activeDebtorsCount} <Text style={styles.currencyText}>Wateja</Text></Text>
-          </View>
-          <View style={styles.statIconWrapper}>
-            <Users size={20} color="#60a5fa" />
-          </View>
-        </View>
-
-        <View style={styles.statCard}>
-          <View>
-            <Text style={styles.statLabel}>MADENI YALIYOLIPWA</Text>
-            <Text style={styles.statValuePaid}>
-              {debts.filter(d => d.status === 'PAID').length} <Text style={styles.currencyText}>Yalolipwa</Text>
-            </Text>
-          </View>
-          <View style={styles.statIconWrapper}>
-            <CheckCircle size={20} color="#10b981" />
-          </View>
-        </View>
-      </View>
-
-      {/* SEARCH AND TABS */}
-      <View style={styles.filterSection}>
-        <View style={styles.searchWrapper}>
-          <Search size={18} color="#94a3b8" style={styles.searchIcon} />
-          <TextInput
-            placeholder="Tafuta mteja au simu..."
-            placeholderTextColor="#64748b"
-            value={search}
-            onChangeText={setSearch}
-            style={styles.searchInput}
-          />
-        </View>
-
-        <View style={styles.tabContainer}>
-          <TouchableOpacity
-            onPress={() => setActiveTab('debts')}
-            style={[styles.tabBtn, activeTab === 'debts' && styles.tabBtnActive]}
-          >
-            <Text style={[styles.tabText, activeTab === 'debts' && styles.tabTextActive]}>Madeni</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => setActiveTab('customers')}
-            style={[styles.tabBtn, activeTab === 'customers' && styles.tabBtnActive]}
-          >
-            <Text style={[styles.tabText, activeTab === 'customers' && styles.tabTextActive]}>Wateja</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-
-      {/* DEBTS LIST */}
-      {activeTab === 'debts' && (
-        <View style={styles.listCard}>
-          {loading ? (
-            <View style={styles.loadingBox}>
-              <ActivityIndicator size="small" color="#10b981" />
-              <Text style={styles.loadingText}>Inapakia madeni...</Text>
+                <TouchableOpacity 
+                  onPress={() => setShowAddDebtModal(true)} 
+                  style={styles.primaryBtn}
+                >
+                  <Plus size={18} color="#020617" />
+                  <Text style={styles.primaryBtnText}>Sajili Deni</Text>
+                </TouchableOpacity>
+              </View>
             </View>
-          ) : filteredDebts.length === 0 ? (
-            <Text style={styles.emptyText}>Hakuna kumbukumbu za madeni zilizopatikana.</Text>
-          ) : (
-            <View style={styles.itemList}>
-              {filteredDebts.map((d) => (
-                <View key={d.id} style={styles.debtItem}>
-                  <View style={styles.itemHeader}>
-                    <View>
-                      <Text style={styles.customerName}>{d.customer_name}</Text>
-                      {d.customer_phone ? (
-                        <View style={styles.phoneGroup}>
-                          <Phone size={12} color="#64748b" />
-                          <Text style={styles.phoneText}>{d.customer_phone}</Text>
-                        </View>
-                      ) : null}
-                    </View>
 
-                    <View style={[
-                      styles.statusBadge, 
-                      d.status === 'PAID' ? styles.statusPaid : d.status === 'PARTIAL' ? styles.statusPartial : styles.statusPending
-                    ]}>
-                      {d.status === 'PAID' && <CheckCircle size={10} color="#10b981" />}
-                      {d.status === 'PARTIAL' && <Clock size={10} color="#fbbf24" />}
-                      {d.status === 'PENDING' && <AlertCircle size={10} color="#f87171" />}
-                      <Text style={[
-                        styles.statusText,
-                        d.status === 'PAID' ? styles.statusTextPaid : d.status === 'PARTIAL' ? styles.statusTextPartial : styles.statusTextPending
-                      ]}>
-                        {d.status === 'PAID' ? 'Imelipwa Yote' : d.status === 'PARTIAL' ? 'Imelipwa Nusu' : 'Haijalipwa'}
-                      </Text>
-                    </View>
-                  </View>
-
-                  <View style={styles.debtValuesGrid}>
-                    <View>
-                      <Text style={styles.valLabel}>DENI LOTE</Text>
-                      <Text style={styles.valText}>{Number(d.total_amount).toLocaleString()} TZS</Text>
-                    </View>
-                    <View>
-                      <Text style={styles.valLabel}>KILICHOLIPWA</Text>
-                      <Text style={styles.paidText}>{Number(d.paid_amount).toLocaleString()} TZS</Text>
-                    </View>
-                    <View>
-                      <Text style={styles.valLabel}>LINALOBAKI</Text>
-                      <Text style={styles.remainingText}>{Number(d.remaining_amount).toLocaleString()} TZS</Text>
-                    </View>
-                  </View>
-
-                  {d.status !== 'PAID' && (
-                    <TouchableOpacity
-                      onPress={() => { setSelectedDebt(d); setShowPayModal(true); }}
-                      style={styles.payActionBtn}
-                    >
-                      <Text style={styles.payActionBtnText}>Sajili Malipo</Text>
-                    </TouchableOpacity>
-                  )}
-                </View>
-              ))}
-            </View>
-          )}
-        </View>
-      )}
-
-      {/* CUSTOMERS LIST */}
-      {activeTab === 'customers' && (
-        <View style={styles.listCard}>
-          <View style={styles.itemList}>
-            {customers.map((c) => (
-              <View key={c.id} style={styles.customerItem}>
+            {/* STATS CARDS */}
+            <View style={styles.statsGrid}>
+              <View style={styles.statCard}>
                 <View>
-                  <Text style={styles.customerName}>{c.name}</Text>
-                  <Text style={styles.phoneText}>Simu: {c.phone || 'N/A'}</Text>
+                  <Text style={styles.statLabel}>JUMLA YA MADENI</Text>
+                  <Text style={styles.statValueDebt}>
+                    {totalDebtAmount.toLocaleString()} <Text style={styles.currencyText}>TZS</Text>
+                  </Text>
                 </View>
-                <View style={{ alignItems: 'flex-end' }}>
-                  <Text style={styles.valLabel}>ANAYODAIWA</Text>
-                  <Text style={styles.remainingText}>{Number(c.total_debt || 0).toLocaleString()} TZS</Text>
+                <View style={styles.statIconWrapper}>
+                  <DollarSign size={20} color="#fbbf24" />
                 </View>
               </View>
-            ))}
-          </View>
-        </View>
-      )}
 
-      {/* MODAL 1: PAY DEBT */}
-      <Modal visible={showPayModal} animationType="slide" transparent>
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Sajili Malipo ya Deni</Text>
-              <TouchableOpacity onPress={() => setShowPayModal(false)}>
-                <X size={20} color="#94a3b8" />
-              </TouchableOpacity>
+              <View style={styles.statCard}>
+                <View>
+                  <Text style={styles.statLabel}>WATEJA WANAODAIWA</Text>
+                  <Text style={styles.statValue}>{activeDebtorsCount} <Text style={styles.currencyText}>Wateja</Text></Text>
+                </View>
+                <View style={styles.statIconWrapper}>
+                  <Users size={20} color="#60a5fa" />
+                </View>
+              </View>
+
+              <View style={styles.statCard}>
+                <View>
+                  <Text style={styles.statLabel}>MADENI YALIYOLIPWA</Text>
+                  <Text style={styles.statValuePaid}>
+                    {debts.filter(d => d.status === 'PAID').length} <Text style={styles.currencyText}>Yalolipwa</Text>
+                  </Text>
+                </View>
+                <View style={styles.statIconWrapper}>
+                  <CheckCircle size={20} color="#10b981" />
+                </View>
+              </View>
             </View>
 
-            {selectedDebt && (
-              <View style={styles.debtSummaryBox}>
-                <Text style={styles.summaryText}>Mteja: <Text style={styles.boldText}>{selectedDebt.customer_name}</Text></Text>
-                <Text style={styles.summaryText}>Salio Linalobaki: <Text style={styles.amberText}>{Number(selectedDebt.remaining_amount).toLocaleString()} TZS</Text></Text>
+            {/* SEARCH AND TABS */}
+            <View style={styles.filterSection}>
+              <View style={styles.searchWrapper}>
+                <Search size={18} color="#94a3b8" style={styles.searchIcon} />
+                <TextInput
+                  placeholder="Tafuta mteja au simu..."
+                  placeholderTextColor="#64748b"
+                  value={search}
+                  onChangeText={setSearch}
+                  style={styles.searchInput}
+                />
+              </View>
+
+              <View style={styles.tabContainer}>
+                <TouchableOpacity
+                  onPress={() => setActiveTab('debts')}
+                  style={[styles.tabBtn, activeTab === 'debts' && styles.tabBtnActive]}
+                >
+                  <Text style={[styles.tabText, activeTab === 'debts' && styles.tabTextActive]}>Madeni</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => setActiveTab('customers')}
+                  style={[styles.tabBtn, activeTab === 'customers' && styles.tabBtnActive]}
+                >
+                  <Text style={[styles.tabText, activeTab === 'customers' && styles.tabTextActive]}>Wateja</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            {/* DEBTS LIST */}
+            {activeTab === 'debts' && (
+              <View style={styles.listCard}>
+                {loading ? (
+                  <View style={styles.loadingBox}>
+                    <ActivityIndicator size="small" color="#10b981" />
+                    <Text style={styles.loadingText}>Inapakia madeni...</Text>
+                  </View>
+                ) : filteredDebts.length === 0 ? (
+                  <Text style={styles.emptyText}>Hakuna kumbukumbu za madeni zilizopatikana.</Text>
+                ) : (
+                  <View style={styles.itemList}>
+                    {filteredDebts.map((d) => (
+                      <View key={d.id} style={styles.debtItem}>
+                        <View style={styles.itemHeader}>
+                          <View>
+                            <Text style={styles.customerName}>{d.customer_name}</Text>
+                            {d.customer_phone ? (
+                              <View style={styles.phoneGroup}>
+                                <Phone size={12} color="#64748b" />
+                                <Text style={styles.phoneText}>{d.customer_phone}</Text>
+                              </View>
+                            ) : null}
+                          </View>
+
+                          <View style={[
+                            styles.statusBadge, 
+                            d.status === 'PAID' ? styles.statusPaid : d.status === 'PARTIAL' ? styles.statusPartial : styles.statusPending
+                          ]}>
+                            {d.status === 'PAID' && <CheckCircle size={10} color="#10b981" />}
+                            {d.status === 'PARTIAL' && <Clock size={10} color="#fbbf24" />}
+                            {d.status === 'PENDING' && <AlertCircle size={10} color="#f87171" />}
+                            <Text style={[
+                              styles.statusText,
+                              d.status === 'PAID' ? styles.statusTextPaid : d.status === 'PARTIAL' ? styles.statusTextPartial : styles.statusTextPending
+                            ]}>
+                              {d.status === 'PAID' ? 'Imelipwa Yote' : d.status === 'PARTIAL' ? 'Imelipwa Nusu' : 'Haijalipwa'}
+                            </Text>
+                          </View>
+                        </View>
+
+                        <View style={styles.debtValuesGrid}>
+                          <View>
+                            <Text style={styles.valLabel}>DENI LOTE</Text>
+                            <Text style={styles.valText}>{Number(d.total_amount).toLocaleString()} TZS</Text>
+                          </View>
+                          <View>
+                            <Text style={styles.valLabel}>KILICHOLIPWA</Text>
+                            <Text style={styles.paidText}>{Number(d.paid_amount).toLocaleString()} TZS</Text>
+                          </View>
+                          <View>
+                            <Text style={styles.valLabel}>LINALOBAKI</Text>
+                            <Text style={styles.remainingText}>{Number(d.remaining_amount).toLocaleString()} TZS</Text>
+                          </View>
+                        </View>
+
+                        {d.status !== 'PAID' && (
+                          <TouchableOpacity
+                            onPress={() => { setSelectedDebt(d); setShowPayModal(true); }}
+                            style={styles.payActionBtn}
+                          >
+                            <Text style={styles.payActionBtnText}>Sajili Malipo</Text>
+                          </TouchableOpacity>
+                        )}
+                      </View>
+                    ))}
+                  </View>
+                )}
               </View>
             )}
 
-            <View style={styles.formGroup}>
-              <Text style={styles.label}>KIASI ANACHOLIPA SASA (TZS)</Text>
-              <TextInput
-                value={payAmount}
-                onChangeText={setPayAmount}
-                placeholder="10000"
-                placeholderTextColor="#64748b"
-                keyboardType="numeric"
-                style={styles.modalInput}
-              />
+            {/* CUSTOMERS LIST */}
+            {activeTab === 'customers' && (
+              <View style={styles.listCard}>
+                <View style={styles.itemList}>
+                  {customers.map((c) => (
+                    <View key={c.id} style={styles.customerItem}>
+                      <View>
+                        <Text style={styles.customerName}>{c.name}</Text>
+                        <Text style={styles.phoneText}>Simu: {c.phone || 'N/A'}</Text>
+                      </View>
+                      <View style={{ alignItems: 'flex-end' }}>
+                        <Text style={styles.valLabel}>ANAYODAIWA</Text>
+                        <Text style={styles.remainingText}>{Number(c.total_debt || 0).toLocaleString()} TZS</Text>
+                      </View>
+                    </View>
+                  ))}
+                </View>
+              </View>
+            )}
 
-              <Text style={[styles.label, { marginTop: 10 }]}>MAELEZO</Text>
-              <TextInput
-                value={payNotes}
-                onChangeText={setPayNotes}
-                placeholder="Mfano: Kalipa kwa M-Pesa"
-                placeholderTextColor="#64748b"
-                style={styles.modalInput}
-              />
-
-              <TouchableOpacity
-                onPress={handlePayDebt}
-                disabled={isSubmitting}
-                style={[styles.submitBtn, isSubmitting && styles.btnDisabled]}
+            {/* MODAL 1: PAY DEBT */}
+            <Modal visible={showPayModal} animationType="slide" transparent>
+              <KeyboardAvoidingView 
+                style={styles.modalOverlay}
+                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
               >
-                {isSubmitting ? <ActivityIndicator color="#020617" /> : <Text style={styles.submitBtnText}>Hifadhi Malipo</Text>}
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </Modal>
+                <View style={styles.modalContent}>
+                  <View style={styles.modalHeader}>
+                    <Text style={styles.modalTitle}>Sajili Malipo ya Deni</Text>
+                    <TouchableOpacity onPress={() => setShowPayModal(false)}>
+                      <X size={20} color="#94a3b8" />
+                    </TouchableOpacity>
+                  </View>
 
-      {/* MODAL 2: ADD CUSTOMER */}
-      <Modal visible={showAddCustomerModal} animationType="slide" transparent>
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Sajili Mteja Mpya</Text>
-              <TouchableOpacity onPress={() => setShowAddCustomerModal(false)}>
-                <X size={20} color="#94a3b8" />
-              </TouchableOpacity>
-            </View>
+                  <ScrollView keyboardShouldPersistTaps="handled">
+                    {selectedDebt && (
+                      <View style={styles.debtSummaryBox}>
+                        <Text style={styles.summaryText}>Mteja: <Text style={styles.boldText}>{selectedDebt.customer_name}</Text></Text>
+                        <Text style={styles.summaryText}>Salio Linalobaki: <Text style={styles.amberText}>{Number(selectedDebt.remaining_amount).toLocaleString()} TZS</Text></Text>
+                      </View>
+                    )}
 
-            <View style={styles.formGroup}>
-              <Text style={styles.label}>JINA LA MTEJA</Text>
-              <TextInput
-                value={customerData.name}
-                onChangeText={(val) => setCustomerData({ ...customerData, name: val })}
-                placeholder="Mama Maria"
-                placeholderTextColor="#64748b"
-                style={styles.modalInput}
-              />
+                    <View style={styles.formGroup}>
+                      <Text style={styles.label}>KIASI ANACHOLIPA SASA (TZS)</Text>
+                      <TextInput
+                        value={payAmount}
+                        onChangeText={setPayAmount}
+                        placeholder="10000"
+                        placeholderTextColor="#64748b"
+                        keyboardType="numeric"
+                        style={styles.modalInput}
+                      />
 
-              <Text style={[styles.label, { marginTop: 10 }]}>NAMBA YA SIMU</Text>
-              <TextInput
-                value={customerData.phone}
-                onChangeText={(val) => setCustomerData({ ...customerData, phone: val })}
-                placeholder="0712345678"
-                placeholderTextColor="#64748b"
-                keyboardType="phone-pad"
-                style={styles.modalInput}
-              />
+                      <Text style={[styles.label, { marginTop: 10 }]}>MAELEZO</Text>
+                      <TextInput
+                        value={payNotes}
+                        onChangeText={setPayNotes}
+                        placeholder="Mfano: Kalipa kwa M-Pesa"
+                        placeholderTextColor="#64748b"
+                        style={styles.modalInput}
+                      />
 
-              <TouchableOpacity
-                onPress={handleAddCustomer}
-                disabled={isSubmitting}
-                style={[styles.submitBtn, isSubmitting && styles.btnDisabled]}
+                      <TouchableOpacity
+                        onPress={handlePayDebt}
+                        disabled={isSubmitting}
+                        style={[styles.submitBtn, isSubmitting && styles.btnDisabled]}
+                      >
+                        {isSubmitting ? <ActivityIndicator color="#020617" /> : <Text style={styles.submitBtnText}>Hifadhi Malipo</Text>}
+                      </TouchableOpacity>
+                    </View>
+                  </ScrollView>
+                </View>
+              </KeyboardAvoidingView>
+            </Modal>
+
+            {/* MODAL 2: ADD CUSTOMER */}
+            <Modal visible={showAddCustomerModal} animationType="slide" transparent>
+              <KeyboardAvoidingView 
+                style={styles.modalOverlay}
+                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
               >
-                {isSubmitting ? <ActivityIndicator color="#020617" /> : <Text style={styles.submitBtnText}>Hifadhi Mteja</Text>}
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </Modal>
+                <View style={styles.modalContent}>
+                  <View style={styles.modalHeader}>
+                    <Text style={styles.modalTitle}>Sajili Mteja Mpya</Text>
+                    <TouchableOpacity onPress={() => setShowAddCustomerModal(false)}>
+                      <X size={20} color="#94a3b8" />
+                    </TouchableOpacity>
+                  </View>
 
-      {/* MODAL 3: RECORD DEBT */}
-      <Modal visible={showAddDebtModal} animationType="slide" transparent>
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Rekodi Deni Jipya</Text>
-              <TouchableOpacity onPress={() => setShowAddDebtModal(false)}>
-                <X size={20} color="#94a3b8" />
-              </TouchableOpacity>
-            </View>
+                  <ScrollView keyboardShouldPersistTaps="handled">
+                    <View style={styles.formGroup}>
+                      <Text style={styles.label}>JINA LA MTEJA</Text>
+                      <TextInput
+                        value={customerData.name}
+                        onChangeText={(val) => setCustomerData({ ...customerData, name: val })}
+                        placeholder="Mama Maria"
+                        placeholderTextColor="#64748b"
+                        style={styles.modalInput}
+                      />
 
-            <View style={styles.formGroup}>
-              <Text style={styles.label}>CHAGUA MTEJA</Text>
-              <ScrollView style={{ maxHeight: 120, marginBottom: 10 }}>
-                {customers.map((c) => (
-                  <TouchableOpacity
-                    key={c.id}
-                    onPress={() => setDebtData({ ...debtData, customer: c.id })}
-                    style={[
-                      styles.customerSelectOption,
-                      debtData.customer === c.id && styles.customerSelectOptionActive
-                    ]}
-                  >
-                    <Text style={[
-                      styles.customerSelectText,
-                      debtData.customer === c.id && styles.customerSelectTextActive
-                    ]}>{c.name} ({c.phone || 'Bila Simu'})</Text>
-                  </TouchableOpacity>
-                ))}
-              </ScrollView>
+                      <Text style={[styles.label, { marginTop: 10 }]}>NAMBA YA SIMU</Text>
+                      <TextInput
+                        value={customerData.phone}
+                        onChangeText={(val) => setCustomerData({ ...customerData, phone: val })}
+                        placeholder="0712345678"
+                        placeholderTextColor="#64748b"
+                        keyboardType="phone-pad"
+                        style={styles.modalInput}
+                      />
 
-              <Text style={styles.label}>JUMLA YA DENI (TZS)</Text>
-              <TextInput
-                value={debtData.total_amount}
-                onChangeText={(val) => setDebtData({ ...debtData, total_amount: val })}
-                placeholder="50000"
-                placeholderTextColor="#64748b"
-                keyboardType="numeric"
-                style={styles.modalInput}
-              />
+                      <TouchableOpacity
+                        onPress={handleAddCustomer}
+                        disabled={isSubmitting}
+                        style={[styles.submitBtn, isSubmitting && styles.btnDisabled]}
+                      >
+                        {isSubmitting ? <ActivityIndicator color="#020617" /> : <Text style={styles.submitBtnText}>Hifadhi Mteja</Text>}
+                      </TouchableOpacity>
+                    </View>
+                  </ScrollView>
+                </View>
+              </KeyboardAvoidingView>
+            </Modal>
 
-              <TouchableOpacity
-                onPress={handleAddDebt}
-                disabled={isSubmitting}
-                style={[styles.submitBtn, isSubmitting && styles.btnDisabled]}
+            {/* MODAL 3: RECORD DEBT */}
+            <Modal visible={showAddDebtModal} animationType="slide" transparent>
+              <KeyboardAvoidingView 
+                style={styles.modalOverlay}
+                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
               >
-                {isSubmitting ? <ActivityIndicator color="#020617" /> : <Text style={styles.submitBtnText}>Rekodi Deni</Text>}
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </Modal>
+                <View style={styles.modalContent}>
+                  <View style={styles.modalHeader}>
+                    <Text style={styles.modalTitle}>Rekodi Deni Jipya</Text>
+                    <TouchableOpacity onPress={() => setShowAddDebtModal(false)}>
+                      <X size={20} color="#94a3b8" />
+                    </TouchableOpacity>
+                  </View>
 
-    </ScrollView>
+                  <ScrollView keyboardShouldPersistTaps="handled">
+                    <View style={styles.formGroup}>
+                      <Text style={styles.label}>CHAGUA MTEJA</Text>
+                      <ScrollView style={{ maxHeight: 120, marginBottom: 10 }} nestedScrollEnabled>
+                        {customers.map((c) => (
+                          <TouchableOpacity
+                            key={c.id}
+                            onPress={() => setDebtData({ ...debtData, customer: c.id })}
+                            style={[
+                              styles.customerSelectOption,
+                              debtData.customer === c.id && styles.customerSelectOptionActive
+                            ]}
+                          >
+                            <Text style={[
+                              styles.customerSelectText,
+                              debtData.customer === c.id && styles.customerSelectTextActive
+                            ]}>{c.name} ({c.phone || 'Bila Simu'})</Text>
+                          </TouchableOpacity>
+                        ))}
+                      </ScrollView>
+
+                      <Text style={styles.label}>JUMLA YA DENI (TZS)</Text>
+                      <TextInput
+                        value={debtData.total_amount}
+                        onChangeText={(val) => setDebtData({ ...debtData, total_amount: val })}
+                        placeholder="50000"
+                        placeholderTextColor="#64748b"
+                        keyboardType="numeric"
+                        style={styles.modalInput}
+                      />
+
+                      <TouchableOpacity
+                        onPress={handleAddDebt}
+                        disabled={isSubmitting}
+                        style={[styles.submitBtn, isSubmitting && styles.btnDisabled]}
+                      >
+                        {isSubmitting ? <ActivityIndicator color="#020617" /> : <Text style={styles.submitBtnText}>Rekodi Deni</Text>}
+                      </TouchableOpacity>
+                    </View>
+                  </ScrollView>
+                </View>
+              </KeyboardAvoidingView>
+            </Modal>
+
+          </ScrollView>
+        </TouchableWithoutFeedback>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#020617',
+  },
+  keyboardContainer: {
+    flex: 1,
+  },
   container: {
     padding: 16,
+    paddingBottom: 32,
     backgroundColor: '#020617',
     flexGrow: 1,
     gap: 16,
@@ -793,6 +837,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 24,
     padding: 16,
+    maxHeight: '85%',
   },
   modalHeader: {
     flexDirection: 'row',

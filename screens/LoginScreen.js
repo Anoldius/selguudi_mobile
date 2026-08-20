@@ -6,7 +6,11 @@ import {
   TouchableOpacity, 
   ActivityIndicator, 
   ScrollView, 
-  StyleSheet 
+  StyleSheet,
+  KeyboardAvoidingView,
+  Platform,
+  TouchableWithoutFeedback,
+  Keyboard 
 } from 'react-native';
 import { useAuth } from '../context/AuthContext';
 import { Store, Lock, User, ArrowRight, ShieldCheck } from 'lucide-react-native';
@@ -37,112 +41,129 @@ export default function LoginScreen({ navigation }) {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
-      <View style={styles.content}>
-        
-        {/* Brand Header */}
-        <View style={styles.header}>
-          <View style={styles.iconBadge}>
-            <Store size={32} color="#10b981" />
-          </View>
-          <Text style={styles.brandTitle}>
-            Selguudi <Text style={styles.brandHighlight}>POS</Text>
-          </Text>
-          <Text style={styles.brandSubtitle}>Mfumo wa Kisasa wa Mauzo na Stoko</Text>
-        </View>
-
-        {/* Card Form */}
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Ingia Kwenye Duka Lako</Text>
-
-          {error ? (
-            <View style={styles.errorBox}>
-              <Text style={styles.errorText}>{error}</Text>
-            </View>
-          ) : null}
-
-          {/* Username Input */}
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>USERNAME AU SIMU</Text>
-            <View style={styles.inputWrapper}>
-              <User size={20} color="#94a3b8" style={styles.inputIcon} />
-              <TextInput
-                value={username}
-                onChangeText={setUsername}
-                style={styles.input}
-                placeholder="Weka username yako"
-                placeholderTextColor="#64748b"
-                autoCapitalize="none"
-              />
-            </View>
-          </View>
-
-          {/* Password Input */}
-          <View style={styles.inputGroup}>
-            <View style={styles.passwordHeader}>
-              <Text style={styles.label}>NENOSIRI (PASSWORD)</Text>
-              <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword')}>
-                <Text style={styles.forgotText}>Umesahau Password?</Text>
-              </TouchableOpacity>
-            </View>
-            <View style={styles.inputWrapper}>
-              <Lock size={20} color="#94a3b8" style={styles.inputIcon} />
-              <TextInput
-                value={password}
-                onChangeText={setPassword}
-                style={styles.input}
-                placeholder="••••••••"
-                placeholderTextColor="#64748b"
-                secureTextEntry
-              />
-            </View>
-          </View>
-
-          {/* Submit Button */}
-          <TouchableOpacity 
-            onPress={handleSubmit} 
-            disabled={isSubmitting}
-            style={[styles.button, isSubmitting && styles.buttonDisabled]}
-          >
-            {isSubmitting ? (
-              <ActivityIndicator color="#020617" />
-            ) : (
-              <View style={styles.buttonContent}>
-                <Text style={styles.buttonText}>Ingia Mfumoni</Text>
-                <ArrowRight size={20} color="#020617" />
+    <KeyboardAvoidingView 
+      style={styles.keyboardContainer}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+    >
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <ScrollView 
+          contentContainerStyle={styles.container} 
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.content}>
+            
+            {/* Brand Header */}
+            <View style={styles.header}>
+              <View style={styles.iconBadge}>
+                <Store size={32} color="#10b981" />
               </View>
-            )}
-          </TouchableOpacity>
+              <Text style={styles.brandTitle}>
+                Selguudi <Text style={styles.brandHighlight}>POS</Text>
+              </Text>
+              <Text style={styles.brandSubtitle}>Mfumo wa Kisasa wa Mauzo na Stoko</Text>
+            </View>
 
-          {/* Register Link */}
-          <View style={styles.registerContainer}>
-            <Text style={styles.registerText}>
-              Hujasajili Duka Bado?{' '}
-            </Text>
-            <TouchableOpacity onPress={() => navigation.navigate('Register')}>
-              <Text style={styles.registerLink}>Sajili Duka Lako Hapa</Text>
-            </TouchableOpacity>
+            {/* Card Form */}
+            <View style={styles.card}>
+              <Text style={styles.cardTitle}>Ingia Kwenye Duka Lako</Text>
+
+              {error ? (
+                <View style={styles.errorBox}>
+                  <Text style={styles.errorText}>{error}</Text>
+                </View>
+              ) : null}
+
+              {/* Username Input */}
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>USERNAME AU SIMU</Text>
+                <View style={styles.inputWrapper}>
+                  <User size={20} color="#94a3b8" style={styles.inputIcon} />
+                  <TextInput
+                    value={username}
+                    onChangeText={setUsername}
+                    style={styles.input}
+                    placeholder="Weka username yako"
+                    placeholderTextColor="#64748b"
+                    autoCapitalize="none"
+                  />
+                </View>
+              </View>
+
+              {/* Password Input */}
+              <View style={styles.inputGroup}>
+                <View style={styles.passwordHeader}>
+                  <Text style={styles.label}>NENOSIRI (PASSWORD)</Text>
+                  <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword')}>
+                    <Text style={styles.forgotText}>Umesahau Password?</Text>
+                  </TouchableOpacity>
+                </View>
+                <View style={styles.inputWrapper}>
+                  <Lock size={20} color="#94a3b8" style={styles.inputIcon} />
+                  <TextInput
+                    value={password}
+                    onChangeText={setPassword}
+                    style={styles.input}
+                    placeholder="••••••••"
+                    placeholderTextColor="#64748b"
+                    secureTextEntry
+                  />
+                </View>
+              </View>
+
+              {/* Submit Button */}
+              <TouchableOpacity 
+                onPress={handleSubmit} 
+                disabled={isSubmitting}
+                style={[styles.button, isSubmitting && styles.buttonDisabled]}
+              >
+                {isSubmitting ? (
+                  <ActivityIndicator color="#020617" />
+                ) : (
+                  <View style={styles.buttonContent}>
+                    <Text style={styles.buttonText}>Ingia Mfumoni</Text>
+                    <ArrowRight size={20} color="#020617" />
+                  </View>
+                )}
+              </TouchableOpacity>
+
+              {/* Register Link */}
+              <View style={styles.registerContainer}>
+                <Text style={styles.registerText}>
+                  Hujasajili Duka Bado?{' '}
+                </Text>
+                <TouchableOpacity onPress={() => navigation.navigate('Register')}>
+                  <Text style={styles.registerLink}>Sajili Duka Lako Hapa</Text>
+                </TouchableOpacity>
+              </View>
+
+            </View>
+
+            {/* Security Badge */}
+            <View style={styles.securityBadge}>
+              <ShieldCheck size={16} color="#10b981" />
+              <Text style={styles.securityText}>Protected by Enterprise End-to-End Encryption</Text>
+            </View>
+
           </View>
-
-        </View>
-
-        {/* Security Badge */}
-        <View style={styles.securityBadge}>
-          <ShieldCheck size={16} color="#10b981" />
-          <Text style={styles.securityText}>Protected by Enterprise End-to-End Encryption</Text>
-        </View>
-
-      </View>
-    </ScrollView>
+        </ScrollView>
+      </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
+  keyboardContainer: {
+    flex: 1,
+    backgroundColor: '#0f172a',
+  },
   container: {
     flexGrow: 1,
     backgroundColor: '#0f172a',
     justifyContent: 'center',
-    padding: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 24,
   },
   content: {
     width: '100%',
@@ -267,6 +288,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: 20,
+    flexWrap: 'wrap',
   },
   registerText: {
     color: '#94a3b8',

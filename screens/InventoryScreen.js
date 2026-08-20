@@ -8,7 +8,13 @@ import {
   ActivityIndicator, 
   Alert, 
   Modal, 
-  StyleSheet 
+  StyleSheet,
+  SafeAreaView,
+  StatusBar,
+  KeyboardAvoidingView,
+  Platform,
+  TouchableWithoutFeedback,
+  Keyboard
 } from 'react-native';
 import apiClient from '../api/axios';
 import { 
@@ -140,236 +146,262 @@ export default function InventoryScreen() {
   );
 
   return (
-    <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
-      
-      {/* Top Header Card */}
-      <View style={styles.headerCard}>
-        <View style={styles.headerTitleRow}>
-          <Package size={24} color="#10b981" />
-          <Text style={styles.headerTitle}>Usimamizi wa Stoko</Text>
-        </View>
-        <Text style={styles.headerSubtitle}>Ongeza bidhaa mpya au badilisha taarifa za bei na stoko.</Text>
-
-        <TouchableOpacity onPress={openAddModal} style={styles.addBtn}>
-          <Plus size={18} color="#020617" />
-          <Text style={styles.addBtnText}>Ongeza Bidhaa Mpya</Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Search Input */}
-      <View style={styles.searchWrapper}>
-        <Search size={18} color="#94a3b8" style={styles.searchIcon} />
-        <TextInput
-          placeholder="Tafuta bidhaa kwa jina au Barcode..."
-          placeholderTextColor="#64748b"
-          value={search}
-          onChangeText={setSearch}
-          style={styles.searchInput}
-        />
-      </View>
-
-      {/* Products List */}
-      <View style={styles.tableCard}>
-        {loading ? (
-          <View style={styles.loadingBox}>
-            <ActivityIndicator size="small" color="#10b981" />
-            <Text style={styles.loadingText}>Inapakia orodha ya bidhaa...</Text>
-          </View>
-        ) : filteredProducts.length === 0 ? (
-          <Text style={styles.emptyText}>Hakuna bidhaa iliyopatikana kwenye mfumo.</Text>
-        ) : (
-          <View style={styles.productList}>
-            {filteredProducts.map((p) => {
-              const isLowStock = Number(p.quantity) <= Number(p.min_stock_alert || 5);
-
-              return (
-                <View key={p.id} style={styles.productCard}>
-                  <View style={styles.productHeader}>
-                    <View style={styles.productTitleGroup}>
-                      <Text style={styles.productName}>{p.name}</Text>
-                      <Text style={styles.barcodeText}>Barcode: {p.barcode || 'N/A'}</Text>
-                    </View>
-
-                    <View style={styles.actionButtons}>
-                      <TouchableOpacity onPress={() => openEditModal(p)} style={styles.iconBtn}>
-                        <Edit3 size={16} color="#10b981" />
-                      </TouchableOpacity>
-                      <TouchableOpacity onPress={() => handleDelete(p.id)} style={styles.iconBtn}>
-                        <Trash2 size={16} color="#ef4444" />
-                      </TouchableOpacity>
-                    </View>
-                  </View>
-
-                  <View style={styles.productDetailsGrid}>
-                    <View>
-                      <Text style={styles.detailLabel}>BEI YA KUNUNUA</Text>
-                      <Text style={styles.detailValue}>{Number(p.buying_price || 0).toLocaleString()} TZS</Text>
-                    </View>
-
-                    <View>
-                      <Text style={styles.detailLabel}>BEI YA KUUZIA</Text>
-                      <Text style={styles.sellingPriceValue}>{Number(p.selling_price || 0).toLocaleString()} TZS</Text>
-                    </View>
-
-                    <View>
-                      <Text style={styles.detailLabel}>STOKO ILIYOPO</Text>
-                      <View style={[styles.stockBadge, isLowStock ? styles.stockBadgeLow : styles.stockBadgeNormal]}>
-                        {isLowStock && <AlertTriangle size={12} color="#fbbf24" />}
-                        <Text style={[styles.stockBadgeText, isLowStock ? styles.stockTextLow : styles.stockTextNormal]}>
-                          {p.quantity} {p.unit}
-                        </Text>
-                      </View>
-                    </View>
-                  </View>
-                </View>
-              );
-            })}
-          </View>
-        )}
-      </View>
-
-      {/* MODAL FOR ADD / EDIT PRODUCT */}
-      <Modal visible={showModal} animationType="slide" transparent>
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
+    <SafeAreaView style={styles.safeArea}>
+      <StatusBar barStyle="light-content" backgroundColor="#020617" />
+      <KeyboardAvoidingView
+        style={styles.keyboardContainer}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+      >
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <ScrollView 
+            contentContainerStyle={styles.container} 
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+          >
             
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>
-                {editId ? 'Badilisha Taarifa za Bidhaa' : 'Sajili Bidhaa Mpya'}
-              </Text>
-              <TouchableOpacity onPress={() => setShowModal(false)} style={styles.closeBtn}>
-                <X size={20} color="#94a3b8" />
+            {/* Top Header Card */}
+            <View style={styles.headerCard}>
+              <View style={styles.headerTitleRow}>
+                <Package size={24} color="#10b981" />
+                <Text style={styles.headerTitle}>Usimamizi wa Stoko</Text>
+              </View>
+              <Text style={styles.headerSubtitle}>Ongeza bidhaa mpya au badilisha taarifa za bei na stoko.</Text>
+
+              <TouchableOpacity onPress={openAddModal} style={styles.addBtn}>
+                <Plus size={18} color="#020617" />
+                <Text style={styles.addBtnText}>Ongeza Bidhaa Mpya</Text>
               </TouchableOpacity>
             </View>
 
-            <ScrollView style={styles.modalBody} keyboardShouldPersistTaps="handled">
-              
-              {/* Barcode */}
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>BARCODE (SCAN AU ANDIKA)</Text>
-                <View style={styles.inputWrapper}>
-                  <Scan size={18} color="#10b981" style={styles.inputIcon} />
-                  <TextInput
-                    value={formData.barcode}
-                    onChangeText={(val) => handleInputChange('barcode', val)}
-                    placeholder="Elekeza Scanner au andika kodi..."
-                    placeholderTextColor="#64748b"
-                    style={styles.input}
-                  />
+            {/* Search Input */}
+            <View style={styles.searchWrapper}>
+              <Search size={18} color="#94a3b8" style={styles.searchIcon} />
+              <TextInput
+                placeholder="Tafuta bidhaa kwa jina au Barcode..."
+                placeholderTextColor="#64748b"
+                value={search}
+                onChangeText={setSearch}
+                style={styles.searchInput}
+              />
+            </View>
+
+            {/* Products List */}
+            <View style={styles.tableCard}>
+              {loading ? (
+                <View style={styles.loadingBox}>
+                  <ActivityIndicator size="small" color="#10b981" />
+                  <Text style={styles.loadingText}>Inapakia orodha ya bidhaa...</Text>
                 </View>
-              </View>
+              ) : filteredProducts.length === 0 ? (
+                <Text style={styles.emptyText}>Hakuna bidhaa iliyopatikana kwenye mfumo.</Text>
+              ) : (
+                <View style={styles.productList}>
+                  {filteredProducts.map((p) => {
+                    const isLowStock = Number(p.quantity) <= Number(p.min_stock_alert || 5);
 
-              {/* Product Name */}
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>JINA LA BIDHAA</Text>
-                <TextInput
-                  value={formData.name}
-                  onChangeText={(val) => handleInputChange('name', val)}
-                  placeholder="Mfano: Azam Juice 1L"
-                  placeholderTextColor="#64748b"
-                  style={styles.standaloneInput}
-                />
-              </View>
+                    return (
+                      <View key={p.id} style={styles.productCard}>
+                        <View style={styles.productHeader}>
+                          <View style={styles.productTitleGroup}>
+                            <Text style={styles.productName}>{p.name}</Text>
+                            <Text style={styles.barcodeText}>Barcode: {p.barcode || 'N/A'}</Text>
+                          </View>
 
-              {/* Buying & Selling Price */}
-              <View style={styles.rowGrid}>
-                <View style={[styles.inputGroup, styles.flex1]}>
-                  <Text style={styles.label}>BEI KUNUNUA (TZS)</Text>
-                  <TextInput
-                    value={formData.buying_price}
-                    onChangeText={(val) => handleInputChange('buying_price', val)}
-                    placeholder="2000"
-                    placeholderTextColor="#64748b"
-                    keyboardType="numeric"
-                    style={styles.standaloneInput}
-                  />
+                          <View style={styles.actionButtons}>
+                            <TouchableOpacity onPress={() => openEditModal(p)} style={styles.iconBtn}>
+                              <Edit3 size={16} color="#10b981" />
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={() => handleDelete(p.id)} style={styles.iconBtn}>
+                              <Trash2 size={16} color="#ef4444" />
+                            </TouchableOpacity>
+                          </View>
+                        </View>
+
+                        <View style={styles.productDetailsGrid}>
+                          <View>
+                            <Text style={styles.detailLabel}>BEI YA KUNUNUA</Text>
+                            <Text style={styles.detailValue}>{Number(p.buying_price || 0).toLocaleString()} TZS</Text>
+                          </View>
+
+                          <View>
+                            <Text style={styles.detailLabel}>BEI YA KUUZIA</Text>
+                            <Text style={styles.sellingPriceValue}>{Number(p.selling_price || 0).toLocaleString()} TZS</Text>
+                          </View>
+
+                          <View>
+                            <Text style={styles.detailLabel}>STOKO ILIYOPO</Text>
+                            <View style={[styles.stockBadge, isLowStock ? styles.stockBadgeLow : styles.stockBadgeNormal]}>
+                              {isLowStock && <AlertTriangle size={12} color="#fbbf24" />}
+                              <Text style={[styles.stockBadgeText, isLowStock ? styles.stockTextLow : styles.stockTextNormal]}>
+                                {p.quantity} {p.unit}
+                              </Text>
+                            </View>
+                          </View>
+                        </View>
+                      </View>
+                    );
+                  })}
                 </View>
+              )}
+            </View>
 
-                <View style={[styles.inputGroup, styles.flex1]}>
-                  <Text style={styles.label}>BEI KUUZIA (TZS)</Text>
-                  <TextInput
-                    value={formData.selling_price}
-                    onChangeText={(val) => handleInputChange('selling_price', val)}
-                    placeholder="2500"
-                    placeholderTextColor="#64748b"
-                    keyboardType="numeric"
-                    style={styles.standaloneInput}
-                  />
-                </View>
-              </View>
-
-              {/* Quantity, Unit & Min Alert */}
-              <View style={styles.rowGrid}>
-                <View style={[styles.inputGroup, styles.flex1]}>
-                  <Text style={styles.label}>STOKO</Text>
-                  <TextInput
-                    value={formData.quantity}
-                    onChangeText={(val) => handleInputChange('quantity', val)}
-                    placeholder="50"
-                    placeholderTextColor="#64748b"
-                    keyboardType="numeric"
-                    style={styles.standaloneInput}
-                  />
-                </View>
-
-                <View style={[styles.inputGroup, styles.flex1]}>
-                  <Text style={styles.label}>KIPIMO</Text>
-                  <View style={styles.unitSelector}>
-                    {['pcs', 'kg', 'liter', 'plate'].map((u) => (
-                      <TouchableOpacity
-                        key={u}
-                        onPress={() => handleInputChange('unit', u)}
-                        style={[styles.unitOption, formData.unit === u && styles.unitOptionActive]}
-                      >
-                        <Text style={[styles.unitText, formData.unit === u && styles.unitTextActive]}>{u}</Text>
-                      </TouchableOpacity>
-                    ))}
-                  </View>
-                </View>
-              </View>
-
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>MIN ALERT</Text>
-                <TextInput
-                  value={formData.min_stock_alert}
-                  onChangeText={(val) => handleInputChange('min_stock_alert', val)}
-                  placeholder="5"
-                  placeholderTextColor="#64748b"
-                  keyboardType="numeric"
-                  style={styles.standaloneInput}
-                />
-              </View>
-
-              <TouchableOpacity
-                onPress={handleSubmit}
-                disabled={isSubmitting}
-                style={[styles.submitBtn, isSubmitting && styles.submitBtnDisabled]}
+            {/* MODAL FOR ADD / EDIT PRODUCT */}
+            <Modal visible={showModal} animationType="slide" transparent>
+              <KeyboardAvoidingView 
+                style={styles.modalOverlay}
+                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
               >
-                {isSubmitting ? (
-                  <ActivityIndicator color="#020617" />
-                ) : (
-                  <View style={styles.submitBtnContent}>
-                    <Check size={18} color="#020617" />
-                    <Text style={styles.submitBtnText}>
-                      {editId ? 'Hifadhi Mabadiliko' : 'Ongeza Kwenye Stoko'}
+                <View style={styles.modalContent}>
+                  
+                  <View style={styles.modalHeader}>
+                    <Text style={styles.modalTitle}>
+                      {editId ? 'Badilisha Taarifa za Bidhaa' : 'Sajili Bidhaa Mpya'}
                     </Text>
+                    <TouchableOpacity onPress={() => setShowModal(false)} style={styles.closeBtn}>
+                      <X size={20} color="#94a3b8" />
+                    </TouchableOpacity>
                   </View>
-                )}
-              </TouchableOpacity>
 
-            </ScrollView>
+                  <ScrollView style={styles.modalBody} keyboardShouldPersistTaps="handled">
+                    
+                    {/* Barcode */}
+                    <View style={styles.inputGroup}>
+                      <Text style={styles.label}>BARCODE (SCAN AU ANDIKA)</Text>
+                      <View style={styles.inputWrapper}>
+                        <Scan size={18} color="#10b981" style={styles.inputIcon} />
+                        <TextInput
+                          value={formData.barcode}
+                          onChangeText={(val) => handleInputChange('barcode', val)}
+                          placeholder="Elekeza Scanner au andika kodi..."
+                          placeholderTextColor="#64748b"
+                          style={styles.input}
+                        />
+                      </View>
+                    </View>
 
-          </View>
-        </View>
-      </Modal>
+                    {/* Product Name */}
+                    <View style={styles.inputGroup}>
+                      <Text style={styles.label}>JINA LA BIDHAA</Text>
+                      <TextInput
+                        value={formData.name}
+                        onChangeText={(val) => handleInputChange('name', val)}
+                        placeholder="Mfano: Azam Juice 1L"
+                        placeholderTextColor="#64748b"
+                        style={styles.standaloneInput}
+                      />
+                    </View>
 
-    </ScrollView>
+                    {/* Buying & Selling Price */}
+                    <View style={styles.rowGrid}>
+                      <View style={[styles.inputGroup, styles.flex1]}>
+                        <Text style={styles.label}>BEI KUNUNUA (TZS)</Text>
+                        <TextInput
+                          value={formData.buying_price}
+                          onChangeText={(val) => handleInputChange('buying_price', val)}
+                          placeholder="2000"
+                          placeholderTextColor="#64748b"
+                          keyboardType="numeric"
+                          style={styles.standaloneInput}
+                        />
+                      </View>
+
+                      <View style={[styles.inputGroup, styles.flex1]}>
+                        <Text style={styles.label}>BEI KUUZIA (TZS)</Text>
+                        <TextInput
+                          value={formData.selling_price}
+                          onChangeText={(val) => handleInputChange('selling_price', val)}
+                          placeholder="2500"
+                          placeholderTextColor="#64748b"
+                          keyboardType="numeric"
+                          style={styles.standaloneInput}
+                        />
+                      </View>
+                    </View>
+
+                    {/* Quantity, Unit & Min Alert */}
+                    <View style={styles.rowGrid}>
+                      <View style={[styles.inputGroup, styles.flex1]}>
+                        <Text style={styles.label}>STOKO</Text>
+                        <TextInput
+                          value={formData.quantity}
+                          onChangeText={(val) => handleInputChange('quantity', val)}
+                          placeholder="50"
+                          placeholderTextColor="#64748b"
+                          keyboardType="numeric"
+                          style={styles.standaloneInput}
+                        />
+                      </View>
+
+                      <View style={[styles.inputGroup, styles.flex1]}>
+                        <Text style={styles.label}>KIPIMO</Text>
+                        <View style={styles.unitSelector}>
+                          {['pcs', 'kg', 'liter', 'plate'].map((u) => (
+                            <TouchableOpacity
+                              key={u}
+                              onPress={() => handleInputChange('unit', u)}
+                              style={[styles.unitOption, formData.unit === u && styles.unitOptionActive]}
+                            >
+                              <Text style={[styles.unitText, formData.unit === u && styles.unitTextActive]}>{u}</Text>
+                            </TouchableOpacity>
+                          ))}
+                        </View>
+                      </View>
+                    </View>
+
+                    <View style={styles.inputGroup}>
+                      <Text style={styles.label}>MIN ALERT</Text>
+                      <TextInput
+                        value={formData.min_stock_alert}
+                        onChangeText={(val) => handleInputChange('min_stock_alert', val)}
+                        placeholder="5"
+                        placeholderTextColor="#64748b"
+                        keyboardType="numeric"
+                        style={styles.standaloneInput}
+                      />
+                    </View>
+
+                    <TouchableOpacity
+                      onPress={handleSubmit}
+                      disabled={isSubmitting}
+                      style={[styles.submitBtn, isSubmitting && styles.submitBtnDisabled]}
+                    >
+                      {isSubmitting ? (
+                        <ActivityIndicator color="#020617" />
+                      ) : (
+                        <View style={styles.submitBtnContent}>
+                          <Check size={18} color="#020617" />
+                          <Text style={styles.submitBtnText}>
+                            {editId ? 'Hifadhi Mabadiliko' : 'Ongeza Kwenye Stoko'}
+                          </Text>
+                        </View>
+                      )}
+                    </TouchableOpacity>
+
+                  </ScrollView>
+
+                </View>
+              </KeyboardAvoidingView>
+            </Modal>
+
+          </ScrollView>
+        </TouchableWithoutFeedback>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#020617',
+  },
+  keyboardContainer: {
+    flex: 1,
+  },
   container: {
     padding: 16,
+    paddingBottom: 32,
     backgroundColor: '#020617',
     flexGrow: 1,
     gap: 16,

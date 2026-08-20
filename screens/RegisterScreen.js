@@ -6,7 +6,11 @@ import {
   TouchableOpacity, 
   ActivityIndicator, 
   ScrollView, 
-  StyleSheet 
+  StyleSheet,
+  KeyboardAvoidingView,
+  Platform,
+  TouchableWithoutFeedback,
+  Keyboard 
 } from 'react-native';
 import apiClient from '../api/axios';
 import { Store, User, Lock, Phone, Mail, Building2, ArrowRight, ShieldCheck } from 'lucide-react-native';
@@ -62,201 +66,217 @@ export default function RegisterScreen({ navigation }) {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
-      <View style={styles.content}>
-        
-        {/* Brand Header */}
-        <View style={styles.header}>
-          <View style={styles.iconBadge}>
-            <Store size={28} color="#10b981" />
-          </View>
-          <Text style={styles.brandTitle}>
-            Selguudi <Text style={styles.brandHighlight}>POS</Text>
-          </Text>
-          <Text style={styles.brandSubtitle}>Sajili Duka Lako Jipya na Anza Mauzo</Text>
-        </View>
-
-        {/* Card Form */}
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Fomu ya Usajili wa Duka</Text>
-
-          {error ? (
-            <View style={styles.errorBox}>
-              <Text style={styles.errorText}>{error}</Text>
-            </View>
-          ) : null}
-
-          {/* Business Name */}
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>JINA LA DUKA / BIASHARA</Text>
-            <View style={styles.inputWrapper}>
-              <Building2 size={20} color="#94a3b8" style={styles.inputIcon} />
-              <TextInput
-                value={formData.name}
-                onChangeText={(val) => handleChange('name', val)}
-                style={styles.input}
-                placeholder="Mfano: Pasua Supermarket"
-                placeholderTextColor="#64748b"
-              />
-            </View>
-          </View>
-
-          {/* Business Type Buttons */}
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>AINA YA BIASHARA</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.typeSelector}>
-              {[
-                { id: 'supermarket', label: 'Supermarket' },
-                { id: 'pharmacy', label: 'Pharmacy' },
-                { id: 'hardware', label: 'Hardware' },
-                { id: 'clothing', label: 'Nguo/Viatu' },
-                { id: 'other', label: 'Nyengine' }
-              ].map((item) => (
-                <TouchableOpacity 
-                  key={item.id}
-                  onPress={() => handleChange('business_type', item.id)}
-                  style={[
-                    styles.typeChip, 
-                    formData.business_type === item.id && styles.typeChipActive
-                  ]}
-                >
-                  <Text style={[
-                    styles.typeChipText,
-                    formData.business_type === item.id && styles.typeChipTextActive
-                  ]}>
-                    {item.label}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-          </View>
-
-          {/* Owner Full Name */}
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>JINA KAMILI LA MMILIKI</Text>
-            <View style={styles.inputWrapper}>
-              <User size={20} color="#94a3b8" style={styles.inputIcon} />
-              <TextInput
-                value={formData.owner_full_name}
-                onChangeText={(val) => handleChange('owner_full_name', val)}
-                style={styles.input}
-                placeholder="Mfano: Anoldius Ishemwa"
-                placeholderTextColor="#64748b"
-              />
-            </View>
-          </View>
-
-          {/* Phone */}
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>NAMBA YA SIMU</Text>
-            <View style={styles.inputWrapper}>
-              <Phone size={20} color="#94a3b8" style={styles.inputIcon} />
-              <TextInput
-                value={formData.phone}
-                onChangeText={(val) => handleChange('phone', val)}
-                style={styles.input}
-                placeholder="0712345678"
-                placeholderTextColor="#64748b"
-                keyboardType="phone-pad"
-              />
-            </View>
-          </View>
-
-          {/* Owner Email */}
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>BARUA PEPE (EMAIL) YA MMILIKI</Text>
-            <View style={styles.inputWrapper}>
-              <Mail size={20} color="#94a3b8" style={styles.inputIcon} />
-              <TextInput
-                value={formData.owner_email}
-                onChangeText={(val) => handleChange('owner_email', val)}
-                style={styles.input}
-                placeholder="anoldpaul86@gmail.com"
-                placeholderTextColor="#64748b"
-                keyboardType="email-address"
-                autoCapitalize="none"
-              />
-            </View>
-          </View>
-
-          {/* Owner Username */}
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>USERNAME YA MMILIKI</Text>
-            <View style={styles.inputWrapper}>
-              <User size={20} color="#94a3b8" style={styles.inputIcon} />
-              <TextInput
-                value={formData.owner_username}
-                onChangeText={(val) => handleChange('owner_username', val)}
-                style={styles.input}
-                placeholder="anoldius_owner"
-                placeholderTextColor="#64748b"
-                autoCapitalize="none"
-              />
-            </View>
-          </View>
-
-          {/* Owner Password */}
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>NENOSIRI (PASSWORD)</Text>
-            <View style={styles.inputWrapper}>
-              <Lock size={20} color="#94a3b8" style={styles.inputIcon} />
-              <TextInput
-                value={formData.owner_password}
-                onChangeText={(val) => handleChange('owner_password', val)}
-                style={styles.input}
-                placeholder="••••••••"
-                placeholderTextColor="#64748b"
-                secureTextEntry
-              />
-            </View>
-          </View>
-
-          {/* Submit Button */}
-          <TouchableOpacity 
-            onPress={handleSubmit} 
-            disabled={isSubmitting}
-            style={[styles.button, isSubmitting && styles.buttonDisabled]}
-          >
-            {isSubmitting ? (
-              <ActivityIndicator color="#020617" />
-            ) : (
-              <View style={styles.buttonContent}>
-                <Text style={styles.buttonText}>Kamilisha Usajili</Text>
-                <ArrowRight size={20} color="#020617" />
+    <KeyboardAvoidingView
+      style={styles.keyboardContainer}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+    >
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <ScrollView 
+          contentContainerStyle={styles.container} 
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.content}>
+            
+            {/* Brand Header */}
+            <View style={styles.header}>
+              <View style={styles.iconBadge}>
+                <Store size={28} color="#10b981" />
               </View>
-            )}
-          </TouchableOpacity>
+              <Text style={styles.brandTitle}>
+                Selguudi <Text style={styles.brandHighlight}>POS</Text>
+              </Text>
+              <Text style={styles.brandSubtitle}>Sajili Duka Lako Jipya na Anza Mauzo</Text>
+            </View>
 
-          {/* Login Link */}
-          <View style={styles.loginContainer}>
-            <Text style={styles.loginText}>
-              Tayari una duka?{' '}
-            </Text>
-            <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-              <Text style={styles.loginLink}>Ingia Hapa</Text>
-            </TouchableOpacity>
+            {/* Card Form */}
+            <View style={styles.card}>
+              <Text style={styles.cardTitle}>Fomu ya Usajili wa Duka</Text>
+
+              {error ? (
+                <View style={styles.errorBox}>
+                  <Text style={styles.errorText}>{error}</Text>
+                </View>
+              ) : null}
+
+              {/* Business Name */}
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>JINA LA DUKA / BIASHARA</Text>
+                <View style={styles.inputWrapper}>
+                  <Building2 size={20} color="#94a3b8" style={styles.inputIcon} />
+                  <TextInput
+                    value={formData.name}
+                    onChangeText={(val) => handleChange('name', val)}
+                    style={styles.input}
+                    placeholder="Mfano: Pasua Supermarket"
+                    placeholderTextColor="#64748b"
+                  />
+                </View>
+              </View>
+
+              {/* Business Type Buttons */}
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>AINA YA BIASHARA</Text>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.typeSelector}>
+                  {[
+                    { id: 'supermarket', label: 'Supermarket' },
+                    { id: 'pharmacy', label: 'Pharmacy' },
+                    { id: 'hardware', label: 'Hardware' },
+                    { id: 'clothing', label: 'Nguo/Viatu' },
+                    { id: 'other', label: 'Nyengine' }
+                  ].map((item) => (
+                    <TouchableOpacity 
+                      key={item.id}
+                      onPress={() => handleChange('business_type', item.id)}
+                      style={[
+                        styles.typeChip, 
+                        formData.business_type === item.id && styles.typeChipActive
+                      ]}
+                    >
+                      <Text style={[
+                        styles.typeChipText,
+                        formData.business_type === item.id && styles.typeChipTextActive
+                      ]}>
+                        {item.label}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+              </View>
+
+              {/* Owner Full Name */}
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>JINA KAMILI LA MMILIKI</Text>
+                <View style={styles.inputWrapper}>
+                  <User size={20} color="#94a3b8" style={styles.inputIcon} />
+                  <TextInput
+                    value={formData.owner_full_name}
+                    onChangeText={(val) => handleChange('owner_full_name', val)}
+                    style={styles.input}
+                    placeholder="Mfano: Anoldius Ishemwa"
+                    placeholderTextColor="#64748b"
+                  />
+                </View>
+              </View>
+
+              {/* Phone */}
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>NAMBA YA SIMU</Text>
+                <View style={styles.inputWrapper}>
+                  <Phone size={20} color="#94a3b8" style={styles.inputIcon} />
+                  <TextInput
+                    value={formData.phone}
+                    onChangeText={(val) => handleChange('phone', val)}
+                    style={styles.input}
+                    placeholder="0712345678"
+                    placeholderTextColor="#64748b"
+                    keyboardType="phone-pad"
+                  />
+                </View>
+              </View>
+
+              {/* Owner Email */}
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>BARUA PEPE (EMAIL) YA MMILIKI</Text>
+                <View style={styles.inputWrapper}>
+                  <Mail size={20} color="#94a3b8" style={styles.inputIcon} />
+                  <TextInput
+                    value={formData.owner_email}
+                    onChangeText={(val) => handleChange('owner_email', val)}
+                    style={styles.input}
+                    placeholder="anoldpaul86@gmail.com"
+                    placeholderTextColor="#64748b"
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                  />
+                </View>
+              </View>
+
+              {/* Owner Username */}
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>USERNAME YA MMILIKI</Text>
+                <View style={styles.inputWrapper}>
+                  <User size={20} color="#94a3b8" style={styles.inputIcon} />
+                  <TextInput
+                    value={formData.owner_username}
+                    onChangeText={(val) => handleChange('owner_username', val)}
+                    style={styles.input}
+                    placeholder="anoldius_owner"
+                    placeholderTextColor="#64748b"
+                    autoCapitalize="none"
+                  />
+                </View>
+              </View>
+
+              {/* Owner Password */}
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>NENOSIRI (PASSWORD)</Text>
+                <View style={styles.inputWrapper}>
+                  <Lock size={20} color="#94a3b8" style={styles.inputIcon} />
+                  <TextInput
+                    value={formData.owner_password}
+                    onChangeText={(val) => handleChange('owner_password', val)}
+                    style={styles.input}
+                    placeholder="••••••••"
+                    placeholderTextColor="#64748b"
+                    secureTextEntry
+                  />
+                </View>
+              </View>
+
+              {/* Submit Button */}
+              <TouchableOpacity 
+                onPress={handleSubmit} 
+                disabled={isSubmitting}
+                style={[styles.button, isSubmitting && styles.buttonDisabled]}
+              >
+                {isSubmitting ? (
+                  <ActivityIndicator color="#020617" />
+                ) : (
+                  <View style={styles.buttonContent}>
+                    <Text style={styles.buttonText}>Kamilisha Usajili</Text>
+                    <ArrowRight size={20} color="#020617" />
+                  </View>
+                )}
+              </TouchableOpacity>
+
+              {/* Login Link */}
+              <View style={styles.loginContainer}>
+                <Text style={styles.loginText}>
+                  Tayari una duka?{' '}
+                </Text>
+                <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+                  <Text style={styles.loginLink}>Ingia Hapa</Text>
+                </TouchableOpacity>
+              </View>
+
+            </View>
+
+            {/* Security Badge */}
+            <View style={styles.securityBadge}>
+              <ShieldCheck size={16} color="#10b981" />
+              <Text style={styles.securityText}>Multi-Tenant Enterprise Security Protected</Text>
+            </View>
+
           </View>
-
-        </View>
-
-        {/* Security Badge */}
-        <View style={styles.securityBadge}>
-          <ShieldCheck size={16} color="#10b981" />
-          <Text style={styles.securityText}>Multi-Tenant Enterprise Security Protected</Text>
-        </View>
-
-      </View>
-    </ScrollView>
+        </ScrollView>
+      </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
+  keyboardContainer: {
+    flex: 1,
+    backgroundColor: '#020617',
+  },
   container: {
     flexGrow: 1,
     backgroundColor: '#020617',
     justifyContent: 'center',
-    padding: 16,
-    paddingVertical: 32,
+    paddingHorizontal: 16,
+    paddingVertical: 24,
   },
   content: {
     width: '100%',
@@ -395,6 +415,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: 16,
+    flexWrap: 'wrap',
   },
   loginText: {
     color: '#94a3b8',

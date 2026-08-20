@@ -4,11 +4,16 @@ import {
   Text, 
   TextInput, 
   TouchableOpacity, 
-  FlatList, 
   ScrollView, 
   ActivityIndicator, 
   Alert, 
-  StyleSheet 
+  StyleSheet,
+  SafeAreaView,
+  StatusBar,
+  KeyboardAvoidingView,
+  Platform,
+  TouchableWithoutFeedback,
+  Keyboard
 } from 'react-native';
 import apiClient from '../api/axios';
 import { 
@@ -140,185 +145,208 @@ export default function POSScreen() {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
-      
-      {/* SECTION 1: Product Catalog & Search */}
-      <View style={styles.catalogCard}>
-        <View style={styles.searchWrapper}>
-          <Search size={20} color="#94a3b8" style={styles.searchIcon} />
-          <TextInput
-            placeholder="Tafuta bidhaa kwa jina au Barcode..."
-            placeholderTextColor="#64748b"
-            value={search}
-            onChangeText={setSearch}
-            style={styles.searchInput}
-          />
-        </View>
-
-        {loading ? (
-          <View style={styles.loadingBox}>
-            <ActivityIndicator size="small" color="#10b981" />
-            <Text style={styles.loadingText}>Inapakia bidhaa...</Text>
-          </View>
-        ) : filteredProducts.length === 0 ? (
-          <Text style={styles.emptyText}>Hakuna bidhaa iliyopatikana.</Text>
-        ) : (
-          <View style={styles.productsGrid}>
-            {filteredProducts.map((product) => {
-              const stock = Number(product.quantity ?? product.stock_quantity ?? 0);
-              const minAlert = Number(product.min_stock_alert || 5);
-              const isLow = stock <= minAlert;
-
-              return (
-                <TouchableOpacity
-                  key={product.id}
-                  onPress={() => addToCart(product)}
-                  style={styles.productItem}
-                >
-                  <View>
-                    <Text style={styles.productName} numberOfLines={1}>{product.name}</Text>
-                    <Text style={styles.productStock}>
-                      Stoko: <Text style={isLow ? styles.stockLow : styles.stockNormal}>{stock} {product.unit || 'pcs'}</Text>
-                    </Text>
-                  </View>
-                  <View style={styles.productFooter}>
-                    <Text style={styles.productPrice}>{Number(product.selling_price).toLocaleString()} TZS</Text>
-                    <View style={styles.addBtn}>
-                      <Plus size={16} color="#10b981" />
-                    </View>
-                  </View>
-                </TouchableOpacity>
-              );
-            })}
-          </View>
-        )}
-      </View>
-
-      {/* SECTION 2: Cart / Bill Section */}
-      <View style={styles.cartCard}>
-        <View style={styles.cartHeader}>
-          <View style={styles.cartTitleWrapper}>
-            <ShoppingCart size={20} color="#10b981" />
-            <Text style={styles.cartTitle}>Kikapu cha Mauzo</Text>
-          </View>
-          <View style={styles.badge}>
-            <Text style={styles.badgeText}>{cart.reduce((a, b) => a + b.quantity, 0)} Items</Text>
-          </View>
-        </View>
-
-        {successMsg ? (
-          <View style={styles.successBox}>
-            <CheckCircle2 size={16} color="#10b981" />
-            <Text style={styles.successText}>{successMsg}</Text>
-          </View>
-        ) : null}
-
-        {/* Cart Items List */}
-        <View style={styles.cartList}>
-          {cart.length === 0 ? (
-            <Text style={styles.emptyCartText}>Kikapu kipo wazi. Bonyeza bidhaa kuongeza.</Text>
-          ) : (
-            cart.map((item) => (
-              <View key={item.id} style={styles.cartItem}>
-                <View style={styles.cartItemInfo}>
-                  <Text style={styles.cartItemName} numberOfLines={1}>{item.name}</Text>
-                  <Text style={styles.cartItemPrice}>{Number(item.selling_price).toLocaleString()} TZS</Text>
-                </View>
-                
-                <View style={styles.cartItemActions}>
-                  <View style={styles.qtyControls}>
-                    <TouchableOpacity onPress={() => updateQuantity(item.id, -1)} style={styles.qtyBtn}>
-                      <Minus size={14} color="#94a3b8" />
-                    </TouchableOpacity>
-                    <Text style={styles.qtyText}>{item.quantity}</Text>
-                    <TouchableOpacity onPress={() => updateQuantity(item.id, 1)} style={styles.qtyBtn}>
-                      <Plus size={14} color="#94a3b8" />
-                    </TouchableOpacity>
-                  </View>
-
-                  <TouchableOpacity onPress={() => removeFromCart(item.id)} style={styles.trashBtn}>
-                    <Trash2 size={16} color="#ef4444" />
-                  </TouchableOpacity>
-                </View>
-              </View>
-            ))
-          )}
-        </View>
-
-        {/* Payment Summary */}
-        <View style={styles.paymentSection}>
-          <Text style={styles.label}>NJIA YA MALIPO</Text>
-          <View style={styles.paymentMethods}>
-            {[
-              { id: 'cash', label: 'Cash' },
-              { id: 'mobile_money', label: 'M-Pesa' },
-              { id: 'bank_card', label: 'Card' }
-            ].map((method) => (
-              <TouchableOpacity
-                key={method.id}
-                onPress={() => setPaymentMethod(method.id)}
-                style={[
-                  styles.methodChip,
-                  paymentMethod === method.id && styles.methodChipActive
-                ]}
-              >
-                <Text style={[
-                  styles.methodChipText,
-                  paymentMethod === method.id && styles.methodChipTextActive
-                ]}>
-                  {method.label}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-
-          {/* Amount Paid Input */}
-          <View style={styles.amountInputGroup}>
-            <View style={styles.amountHeader}>
-              <Text style={styles.label}>FEDHA ILIYOTOLEWA:</Text>
-              {change > 0 && <Text style={styles.changeText}>Chenji: {change.toLocaleString()} TZS</Text>}
-            </View>
-            <TextInput
-              placeholder="Weka kiasi kilicholipwa..."
-              placeholderTextColor="#64748b"
-              value={amountPaid}
-              onChangeText={setAmountPaid}
-              keyboardType="numeric"
-              style={styles.amountInput}
-            />
-          </View>
-
-          {/* Total & Submit */}
-          <View style={styles.totalRow}>
-            <Text style={styles.totalLabel}>JUMLA KUU:</Text>
-            <Text style={styles.totalValue}>{totalAmount.toLocaleString()} TZS</Text>
-          </View>
-
-          <TouchableOpacity
-            onPress={handleCheckout}
-            disabled={cart.length === 0 || isCheckout}
-            style={[styles.checkoutBtn, (cart.length === 0 || isCheckout) && styles.checkoutBtnDisabled]}
+    <SafeAreaView style={styles.safeArea}>
+      <StatusBar barStyle="light-content" backgroundColor="#020617" />
+      <KeyboardAvoidingView
+        style={styles.keyboardContainer}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+      >
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <ScrollView 
+            contentContainerStyle={styles.container} 
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
           >
-            {isCheckout ? (
-              <ActivityIndicator color="#020617" />
-            ) : (
-              <View style={styles.checkoutBtnContent}>
-                <CreditCard size={20} color="#020617" />
-                <Text style={styles.checkoutBtnText}>Kamilisha Mauzo</Text>
+            
+            {/* SECTION 1: Product Catalog & Search */}
+            <View style={styles.catalogCard}>
+              <View style={styles.searchWrapper}>
+                <Search size={20} color="#94a3b8" style={styles.searchIcon} />
+                <TextInput
+                  placeholder="Tafuta bidhaa kwa jina au Barcode..."
+                  placeholderTextColor="#64748b"
+                  value={search}
+                  onChangeText={setSearch}
+                  style={styles.searchInput}
+                />
               </View>
-            )}
-          </TouchableOpacity>
-        </View>
 
-      </View>
+              {loading ? (
+                <View style={styles.loadingBox}>
+                  <ActivityIndicator size="small" color="#10b981" />
+                  <Text style={styles.loadingText}>Inapakia bidhaa...</Text>
+                </View>
+              ) : filteredProducts.length === 0 ? (
+                <Text style={styles.emptyText}>Hakuna bidhaa iliyopatikana.</Text>
+              ) : (
+                <View style={styles.productsGrid}>
+                  {filteredProducts.map((product) => {
+                    const stock = Number(product.quantity ?? product.stock_quantity ?? 0);
+                    const minAlert = Number(product.min_stock_alert || 5);
+                    const isLow = stock <= minAlert;
 
-    </ScrollView>
+                    return (
+                      <TouchableOpacity
+                        key={product.id}
+                        onPress={() => addToCart(product)}
+                        style={styles.productItem}
+                      >
+                        <View>
+                          <Text style={styles.productName} numberOfLines={1}>{product.name}</Text>
+                          <Text style={styles.productStock}>
+                            Stoko: <Text style={isLow ? styles.stockLow : styles.stockNormal}>{stock} {product.unit || 'pcs'}</Text>
+                          </Text>
+                        </View>
+                        <View style={styles.productFooter}>
+                          <Text style={styles.productPrice}>{Number(product.selling_price).toLocaleString()} TZS</Text>
+                          <View style={styles.addBtn}>
+                            <Plus size={16} color="#10b981" />
+                          </View>
+                        </View>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+              )}
+            </View>
+
+            {/* SECTION 2: Cart / Bill Section */}
+            <View style={styles.cartCard}>
+              <View style={styles.cartHeader}>
+                <View style={styles.cartTitleWrapper}>
+                  <ShoppingCart size={20} color="#10b981" />
+                  <Text style={styles.cartTitle}>Kikapu cha Mauzo</Text>
+                </View>
+                <View style={styles.badge}>
+                  <Text style={styles.badgeText}>{cart.reduce((a, b) => a + b.quantity, 0)} Items</Text>
+                </View>
+              </View>
+
+              {successMsg ? (
+                <View style={styles.successBox}>
+                  <CheckCircle2 size={16} color="#10b981" />
+                  <Text style={styles.successText}>{successMsg}</Text>
+                </View>
+              ) : null}
+
+              {/* Cart Items List */}
+              <View style={styles.cartList}>
+                {cart.length === 0 ? (
+                  <Text style={styles.emptyCartText}>Kikapu kipo wazi. Bonyeza bidhaa kuongeza.</Text>
+                ) : (
+                  cart.map((item) => (
+                    <View key={item.id} style={styles.cartItem}>
+                      <View style={styles.cartItemInfo}>
+                        <Text style={styles.cartItemName} numberOfLines={1}>{item.name}</Text>
+                        <Text style={styles.cartItemPrice}>{Number(item.selling_price).toLocaleString()} TZS</Text>
+                      </View>
+                      
+                      <View style={styles.cartItemActions}>
+                        <View style={styles.qtyControls}>
+                          <TouchableOpacity onPress={() => updateQuantity(item.id, -1)} style={styles.qtyBtn}>
+                            <Minus size={14} color="#94a3b8" />
+                          </TouchableOpacity>
+                          <Text style={styles.qtyText}>{item.quantity}</Text>
+                          <TouchableOpacity onPress={() => updateQuantity(item.id, 1)} style={styles.qtyBtn}>
+                            <Plus size={14} color="#94a3b8" />
+                          </TouchableOpacity>
+                        </View>
+
+                        <TouchableOpacity onPress={() => removeFromCart(item.id)} style={styles.trashBtn}>
+                          <Trash2 size={16} color="#ef4444" />
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+                  ))
+                )}
+              </View>
+
+              {/* Payment Summary */}
+              <View style={styles.paymentSection}>
+                <Text style={styles.label}>NJIA YA MALIPO</Text>
+                <View style={styles.paymentMethods}>
+                  {[
+                    { id: 'cash', label: 'Cash' },
+                    { id: 'mobile_money', label: 'M-Pesa' },
+                    { id: 'bank_card', label: 'Card' }
+                  ].map((method) => (
+                    <TouchableOpacity
+                      key={method.id}
+                      onPress={() => setPaymentMethod(method.id)}
+                      style={[
+                        styles.methodChip,
+                        paymentMethod === method.id && styles.methodChipActive
+                      ]}
+                    >
+                      <Text style={[
+                        styles.methodChipText,
+                        paymentMethod === method.id && styles.methodChipTextActive
+                      ]}>
+                        {method.label}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+
+                {/* Amount Paid Input */}
+                <View style={styles.amountInputGroup}>
+                  <View style={styles.amountHeader}>
+                    <Text style={styles.label}>FEDHA ILIYOTOLEWA:</Text>
+                    {change > 0 && <Text style={styles.changeText}>Chenji: {change.toLocaleString()} TZS</Text>}
+                  </View>
+                  <TextInput
+                    placeholder="Weka kiasi kilicholipwa..."
+                    placeholderTextColor="#64748b"
+                    value={amountPaid}
+                    onChangeText={setAmountPaid}
+                    keyboardType="numeric"
+                    style={styles.amountInput}
+                  />
+                </View>
+
+                {/* Total & Submit */}
+                <View style={styles.totalRow}>
+                  <Text style={styles.totalLabel}>JUMLA KUU:</Text>
+                  <Text style={styles.totalValue}>{totalAmount.toLocaleString()} TZS</Text>
+                </View>
+
+                <TouchableOpacity
+                  onPress={handleCheckout}
+                  disabled={cart.length === 0 || isCheckout}
+                  style={[styles.checkoutBtn, (cart.length === 0 || isCheckout) && styles.checkoutBtnDisabled]}
+                >
+                  {isCheckout ? (
+                    <ActivityIndicator color="#020617" />
+                  ) : (
+                    <View style={styles.checkoutBtnContent}>
+                      <CreditCard size={20} color="#020617" />
+                      <Text style={styles.checkoutBtnText}>Kamilisha Mauzo</Text>
+                    </View>
+                  )}
+                </TouchableOpacity>
+              </View>
+
+            </View>
+
+          </ScrollView>
+        </TouchableWithoutFeedback>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#020617',
+  },
+  keyboardContainer: {
+    flex: 1,
+  },
   container: {
     padding: 16,
+    paddingBottom: 32,
     backgroundColor: '#020617',
     flexGrow: 1,
     gap: 16,
@@ -370,6 +398,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 12,
+    justifyContent: 'space-between',
   },
   productItem: {
     width: '48%',

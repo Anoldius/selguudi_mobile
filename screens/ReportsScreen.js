@@ -6,7 +6,9 @@ import {
   ScrollView, 
   ActivityIndicator, 
   RefreshControl,
-  StyleSheet 
+  StyleSheet,
+  SafeAreaView,
+  StatusBar 
 } from 'react-native';
 import apiClient from '../api/axios';
 import { 
@@ -62,136 +64,145 @@ export default function ReportsScreen() {
   };
 
   return (
-    <ScrollView 
-      contentContainerStyle={styles.container}
-      refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#10b981" />
-      }
-    >
-      
-      {/* Top Header Card */}
-      <View style={styles.headerCard}>
-        <View style={styles.headerTitleRow}>
-          <BarChart3 size={24} color="#10b981" />
-          <Text style={styles.headerTitle}>Takwimu za Mauzo ya Leo</Text>
-        </View>
-        <Text style={styles.headerSubtitle}>
-          Kagua mchanganuo wa mauzo, faida, na bidhaa zinazotoka zaidi leo.
-        </Text>
-
-        <TouchableOpacity onPress={fetchReportData} style={styles.refreshBtn}>
-          <RefreshCw size={16} color="#ffffff" />
-          <Text style={styles.refreshBtnText}>Anza Pyaz / Refresh</Text>
-        </TouchableOpacity>
-      </View>
-
-      {loading ? (
-        <View style={styles.loadingBox}>
-          <ActivityIndicator size="large" color="#10b981" />
-          <Text style={styles.loadingText}>Inapakia takwimu za leo...</Text>
-        </View>
-      ) : (
-        <>
-          {/* Summary Cards Grid */}
-          <View style={styles.statsGrid}>
-            
-            {/* Sales Card */}
-            <View style={styles.card}>
-              <View style={styles.cardHeader}>
-                <Text style={styles.cardLabel}>MAUZO YA LEO</Text>
-                <View style={[styles.iconWrapper, styles.greenWrapper]}>
-                  <DollarSign size={20} color="#10b981" />
-                </View>
-              </View>
-              <Text style={styles.cardValue}>
-                {Number(summary.today_total_sales || 0).toLocaleString()} <Text style={styles.unitText}>TZS</Text>
-              </Text>
-              <Text style={styles.cardSubtext}>Jumla ya fedha zilizoingia</Text>
-            </View>
-
-            {/* Profit Card */}
-            <View style={styles.card}>
-              <View style={styles.cardHeader}>
-                <Text style={styles.cardLabel}>FAIDA YA LEO (EST.)</Text>
-                <View style={[styles.iconWrapper, styles.greenWrapper]}>
-                  <TrendingUp size={20} color="#10b981" />
-                </View>
-              </View>
-              <Text style={styles.profitValue}>
-                {Number(summary.today_estimated_profit || 0).toLocaleString()} <Text style={styles.unitText}>TZS</Text>
-              </Text>
-              <Text style={styles.cardSubtext}>Mauzo minus Bei za kununulia</Text>
-            </View>
-
-            {/* Transactions Card */}
-            <View style={styles.card}>
-              <View style={styles.cardHeader}>
-                <Text style={styles.cardLabel}>MIAMALA / RISITI</Text>
-                <View style={[styles.iconWrapper, styles.blueWrapper]}>
-                  <ShoppingBag size={20} color="#60a5fa" />
-                </View>
-              </View>
-              <Text style={styles.cardValue}>
-                {summary.today_receipts || 0} <Text style={styles.unitText}>Risiti</Text>
-              </Text>
-              <Text style={styles.cardSubtext}>Idadi ya mauzo yaliyofanyika</Text>
-            </View>
-
-            {/* Low Stock Card */}
-            <View style={styles.card}>
-              <View style={styles.cardHeader}>
-                <Text style={styles.cardLabel}>ALERT YA STOKO</Text>
-                <View style={[styles.iconWrapper, styles.amberWrapper]}>
-                  <AlertTriangle size={20} color="#fbbf24" />
-                </View>
-              </View>
-              <Text style={styles.amberValue}>
-                {summary.low_stock_items_count || 0} <Text style={styles.unitText}>Bidhaa</Text>
-              </Text>
-              <Text style={styles.cardSubtext}>Bidhaa zinazokaribia kuisha</Text>
-            </View>
-
+    <SafeAreaView style={styles.safeArea}>
+      <StatusBar barStyle="light-content" backgroundColor="#020617" />
+      <ScrollView 
+        contentContainerStyle={styles.container}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#10b981" />
+        }
+      >
+        
+        {/* Top Header Card */}
+        <View style={styles.headerCard}>
+          <View style={styles.headerTitleRow}>
+            <BarChart3 size={24} color="#10b981" />
+            <Text style={styles.headerTitle}>Takwimu za Mauzo ya Leo</Text>
           </View>
+          <Text style={styles.headerSubtitle}>
+            Kagua mchanganuo wa mauzo, faida, na bidhaa zinazotoka zaidi leo.
+          </Text>
 
-          {/* TOP SELLING PRODUCTS SECTION */}
-          <View style={styles.tableCard}>
-            <View style={styles.tableHeader}>
-              <PackageCheck size={20} color="#10b981" />
-              <Text style={styles.tableTitle}>Bidhaa Zinazotoka Sana (Top 10)</Text>
-            </View>
+          <TouchableOpacity onPress={fetchReportData} style={styles.refreshBtn}>
+            <RefreshCw size={16} color="#ffffff" />
+            <Text style={styles.refreshBtnText}>Anza Upya / Refresh</Text>
+          </TouchableOpacity>
+        </View>
 
-            {topProducts.length === 0 ? (
-              <Text style={styles.emptyText}>Hakuna data za bidhaa zilizouzwa bado.</Text>
-            ) : (
-              <View style={styles.topList}>
-                {topProducts.map((p, idx) => (
-                  <View key={idx} style={styles.topItem}>
-                    <View style={styles.productMeta}>
-                      <Text style={styles.productIndex}>#{idx + 1}</Text>
-                      <View>
-                        <Text style={styles.productName}>{p.product__name}</Text>
-                        <Text style={styles.productQty}>Idadi Iliyouzwa: {p.total_quantity_sold}</Text>
-                      </View>
-                    </View>
-                    <Text style={styles.revenueText}>
-                      {Number(p.total_revenue || 0).toLocaleString()} TZS
-                    </Text>
+        {loading ? (
+          <View style={styles.loadingBox}>
+            <ActivityIndicator size="large" color="#10b981" />
+            <Text style={styles.loadingText}>Inapakia takwimu za leo...</Text>
+          </View>
+        ) : (
+          <>
+            {/* Summary Cards Grid */}
+            <View style={styles.statsGrid}>
+              
+              {/* Sales Card */}
+              <View style={styles.card}>
+                <View style={styles.cardHeader}>
+                  <Text style={styles.cardLabel}>MAUZO YA LEO</Text>
+                  <View style={[styles.iconWrapper, styles.greenWrapper]}>
+                    <DollarSign size={20} color="#10b981" />
                   </View>
-                ))}
+                </View>
+                <Text style={styles.cardValue}>
+                  {Number(summary.today_total_sales || 0).toLocaleString()} <Text style={styles.unitText}>TZS</Text>
+                </Text>
+                <Text style={styles.cardSubtext}>Jumla ya fedha zilizoingia</Text>
               </View>
-            )}
-          </View>
 
-        </>
-      )}
+              {/* Profit Card */}
+              <View style={styles.card}>
+                <View style={styles.cardHeader}>
+                  <Text style={styles.cardLabel}>FAIDA YA LEO (EST.)</Text>
+                  <View style={[styles.iconWrapper, styles.greenWrapper]}>
+                    <TrendingUp size={20} color="#10b981" />
+                  </View>
+                </View>
+                <Text style={styles.profitValue}>
+                  {Number(summary.today_estimated_profit || 0).toLocaleString()} <Text style={styles.unitText}>TZS</Text>
+                </Text>
+                <Text style={styles.cardSubtext}>Mauzo minus Bei za kununulia</Text>
+              </View>
 
-    </ScrollView>
+              {/* Transactions Card */}
+              <View style={styles.card}>
+                <View style={styles.cardHeader}>
+                  <Text style={styles.cardLabel}>MIAMALA / RISITI</Text>
+                  <View style={[styles.iconWrapper, styles.blueWrapper]}>
+                    <ShoppingBag size={20} color="#60a5fa" />
+                  </View>
+                </View>
+                <Text style={styles.cardValue}>
+                  {summary.today_receipts || 0} <Text style={styles.unitText}>Risiti</Text>
+                </Text>
+                <Text style={styles.cardSubtext}>Idadi ya mauzo yaliyofanyika</Text>
+              </View>
+
+              {/* Low Stock Card */}
+              <View style={styles.card}>
+                <View style={styles.cardHeader}>
+                  <Text style={styles.cardLabel}>ALERT YA STOKO</Text>
+                  <View style={[styles.iconWrapper, styles.amberWrapper]}>
+                    <AlertTriangle size={20} color="#fbbf24" />
+                  </View>
+                </View>
+                <Text style={styles.amberValue}>
+                  {summary.low_stock_items_count || 0} <Text style={styles.unitText}>Bidhaa</Text>
+                </Text>
+                <Text style={styles.cardSubtext}>Bidhaa zinazokaribia kuisha</Text>
+              </View>
+
+            </View>
+
+            {/* TOP SELLING PRODUCTS SECTION */}
+            <View style={styles.tableCard}>
+              <View style={styles.tableHeader}>
+                <PackageCheck size={20} color="#10b981" />
+                <Text style={styles.tableTitle}>Bidhaa Zinazotoka Sana (Top 10)</Text>
+              </View>
+
+              {topProducts.length === 0 ? (
+                <Text style={styles.emptyText}>Hakuna data za bidhaa zilizouzwa bado.</Text>
+              ) : (
+                <View style={styles.topList}>
+                  {topProducts.map((p, idx) => (
+                    <View key={idx} style={styles.topItem}>
+                      <View style={styles.productMeta}>
+                        <Text style={styles.productIndex}>#{idx + 1}</Text>
+                        <View style={styles.productTextWrapper}>
+                          <Text style={styles.productName} numberOfLines={1}>{p.product__name}</Text>
+                          <Text style={styles.productQty}>Idadi Iliyouzwa: {p.total_quantity_sold}</Text>
+                        </View>
+                      </View>
+                      <Text style={styles.revenueText}>
+                        {Number(p.total_revenue || 0).toLocaleString()} TZS
+                      </Text>
+                    </View>
+                  ))}
+                </View>
+              )}
+            </View>
+
+          </>
+        )}
+
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#020617',
+  },
   container: {
     padding: 16,
+    paddingBottom: 32,
     backgroundColor: '#020617',
     flexGrow: 1,
     gap: 16,
@@ -353,6 +364,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
+    flex: 1,
+    marginRight: 8,
+  },
+  productTextWrapper: {
+    flex: 1,
   },
   productIndex: {
     color: '#10b981',

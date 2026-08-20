@@ -6,7 +6,13 @@ import {
   TouchableOpacity, 
   ActivityIndicator, 
   ScrollView, 
-  StyleSheet 
+  StyleSheet,
+  SafeAreaView,
+  StatusBar,
+  KeyboardAvoidingView,
+  Platform,
+  TouchableWithoutFeedback,
+  Keyboard
 } from 'react-native';
 import apiClient from '../api/axios';
 import { Store, Mail, ArrowLeft, CheckCircle2 } from 'lucide-react-native';
@@ -41,89 +47,111 @@ export default function ForgotPasswordScreen({ navigation }) {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
-      <View style={styles.card}>
-        
-        {/* Brand Header */}
-        <View style={styles.header}>
-          <View style={styles.iconWrapper}>
-            <Store size={32} color="#10b981" />
-          </View>
-          <Text style={styles.title}>Umesahau Password?</Text>
-          <Text style={styles.subtitle}>
-            Weka email yako hapa chini ili tukutumie code ya kubadilisha password.
-          </Text>
-        </View>
-
-        {submitted ? (
-          <View style={styles.submittedContainer}>
-            <View style={styles.successBox}>
-              <CheckCircle2 size={40} color="#10b981" />
-              <Text style={styles.successTitle}>Ombi Lilitumwa Vizuri!</Text>
-              <Text style={styles.successSubtitle}>
-                Kama email hiyo imesajiliwa, angalia terminal ya backend (au inbox yako) kupata Code/Token ya Reset.
-              </Text>
-            </View>
-
-            <TouchableOpacity 
-              onPress={() => navigation.navigate('ResetPassword')}
-              style={styles.primaryBtn}
-            >
-              <Text style={styles.primaryBtnText}>Weka Code / Reset Password</Text>
-            </TouchableOpacity>
-          </View>
-        ) : (
-          <View style={styles.form}>
-            {error ? (
-              <View style={styles.errorBox}>
-                <Text style={styles.errorText}>{error}</Text>
+    <SafeAreaView style={styles.safeArea}>
+      <StatusBar barStyle="light-content" backgroundColor="#020617" />
+      <KeyboardAvoidingView
+        style={styles.keyboardContainer}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+      >
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <ScrollView 
+            contentContainerStyle={styles.container} 
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+          >
+            <View style={styles.card}>
+              
+              {/* Brand Header */}
+              <View style={styles.header}>
+                <View style={styles.iconWrapper}>
+                  <Store size={32} color="#10b981" />
+                </View>
+                <Text style={styles.title}>Umesahau Password?</Text>
+                <Text style={styles.subtitle}>
+                  Weka email yako hapa chini ili tukutumie code ya kubadilisha password.
+                </Text>
               </View>
-            ) : null}
 
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>EMAIL YAKO</Text>
-              <View style={styles.inputWrapper}>
-                <Mail size={18} color="#64748b" style={styles.inputIcon} />
-                <TextInput
-                  value={email}
-                  onChangeText={setEmail}
-                  placeholder="mfano@gmail.com"
-                  placeholderTextColor="#64748b"
-                  keyboardType="email-address"
-                  autoCapitalize="none"
-                  style={styles.input}
-                />
-              </View>
-            </View>
+              {submitted ? (
+                <View style={styles.submittedContainer}>
+                  <View style={styles.successBox}>
+                    <CheckCircle2 size={40} color="#10b981" />
+                    <Text style={styles.successTitle}>Ombi Lilitumwa Vizuri!</Text>
+                    <Text style={styles.successSubtitle}>
+                      Kama email hiyo imesajiliwa, angalia terminal ya backend (au inbox yako) kupata Code/Token ya Reset.
+                    </Text>
+                  </View>
 
-            <TouchableOpacity
-              onPress={handleSubmit}
-              disabled={loading}
-              style={[styles.primaryBtn, loading && styles.btnDisabled]}
-            >
-              {loading ? (
-                <ActivityIndicator color="#020617" />
+                  <TouchableOpacity 
+                    onPress={() => navigation.navigate('ResetPassword')}
+                    style={styles.primaryBtn}
+                  >
+                    <Text style={styles.primaryBtnText}>Weka Code / Reset Password</Text>
+                  </TouchableOpacity>
+                </View>
               ) : (
-                <Text style={styles.primaryBtnText}>Tuma Code ya Reset</Text>
+                <View style={styles.form}>
+                  {error ? (
+                    <View style={styles.errorBox}>
+                      <Text style={styles.errorText}>{error}</Text>
+                    </View>
+                  ) : null}
+
+                  <View style={styles.inputGroup}>
+                    <Text style={styles.label}>EMAIL YAKO</Text>
+                    <View style={styles.inputWrapper}>
+                      <Mail size={18} color="#64748b" style={styles.inputIcon} />
+                      <TextInput
+                        value={email}
+                        onChangeText={setEmail}
+                        placeholder="mfano@gmail.com"
+                        placeholderTextColor="#64748b"
+                        keyboardType="email-address"
+                        autoCapitalize="none"
+                        style={styles.input}
+                      />
+                    </View>
+                  </View>
+
+                  <TouchableOpacity
+                    onPress={handleSubmit}
+                    disabled={loading}
+                    style={[styles.primaryBtn, loading && styles.btnDisabled]}
+                  >
+                    {loading ? (
+                      <ActivityIndicator color="#020617" />
+                    ) : (
+                      <Text style={styles.primaryBtnText}>Tuma Code ya Reset</Text>
+                    )}
+                  </TouchableOpacity>
+                </View>
               )}
-            </TouchableOpacity>
-          </View>
-        )}
 
-        <TouchableOpacity 
-          onPress={() => navigation.navigate('Login')}
-          style={styles.backLink}
-        >
-          <ArrowLeft size={16} color="#94a3b8" />
-          <Text style={styles.backLinkText}>Rudi Kwenye Login</Text>
-        </TouchableOpacity>
+              <TouchableOpacity 
+                onPress={() => navigation.navigate('Login')}
+                style={styles.backLink}
+              >
+                <ArrowLeft size={16} color="#94a3b8" />
+                <Text style={styles.backLinkText}>Rudi Kwenye Login</Text>
+              </TouchableOpacity>
 
-      </View>
-    </ScrollView>
+            </View>
+          </ScrollView>
+        </TouchableWithoutFeedback>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#020617',
+  },
+  keyboardContainer: {
+    flex: 1,
+  },
   container: {
     flexGrow: 1,
     backgroundColor: '#020617',

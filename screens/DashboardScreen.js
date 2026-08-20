@@ -5,7 +5,9 @@ import {
   ScrollView, 
   ActivityIndicator, 
   RefreshControl, 
-  StyleSheet 
+  StyleSheet,
+  SafeAreaView,
+  StatusBar
 } from 'react-native';
 import apiClient from '../api/axios';
 import { useAuth } from '../context/AuthContext';
@@ -44,10 +46,11 @@ export default function DashboardScreen() {
 
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
+      <SafeAreaView style={styles.loadingContainer}>
+        <StatusBar barStyle="light-content" backgroundColor="#020617" />
         <ActivityIndicator size="large" color="#10b981" />
         <Text style={styles.loadingText}>Inapakia muhtasari wa leo...</Text>
-      </View>
+      </SafeAreaView>
     );
   }
 
@@ -87,60 +90,69 @@ export default function DashboardScreen() {
   ];
 
   return (
-    <ScrollView 
-      contentContainerStyle={styles.container}
-      refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#10b981" />
-      }
-    >
-      {/* Top Welcome Banner */}
-      <View style={styles.banner}>
-        <View style={styles.bannerTextContainer}>
-          <Text style={styles.welcomeTitle}>
-            Karibu Selguudi 👋
-          </Text>
-          <Text style={styles.welcomeSubtitle}>
-            Muhtasari halisi wa biashara yako kwa siku ya leo.
-          </Text>
-        </View>
-
-        {/* Business Name Badge */}
-        <View style={styles.businessBadge}>
-          <View style={styles.storeIconWrapper}>
-            <Store size={20} color="#10b981" />
+    <SafeAreaView style={styles.safeArea}>
+      <StatusBar barStyle="light-content" backgroundColor="#020617" />
+      <ScrollView 
+        contentContainerStyle={styles.container}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#10b981" />
+        }
+      >
+        {/* Top Welcome Banner */}
+        <View style={styles.banner}>
+          <View style={styles.bannerTextContainer}>
+            <Text style={styles.welcomeTitle}>
+              Karibu Selguudi 👋
+            </Text>
+            <Text style={styles.welcomeSubtitle}>
+              Muhtasari halisi wa biashara yako kwa siku ya leo.
+            </Text>
           </View>
-          <View>
-            <Text style={styles.badgeLabel}>BIASHARA / DUKA</Text>
-            <Text style={styles.businessNameText}>{businessName}</Text>
-          </View>
-        </View>
-      </View>
 
-      {/* Analytics Cards */}
-      <View style={styles.cardsGrid}>
-        {statCards.map((card, idx) => {
-          const IconComponent = card.icon;
-          return (
-            <View key={idx} style={styles.card}>
-              <View style={styles.cardHeader}>
-                <Text style={styles.cardTitle}>{card.title}</Text>
-                <View style={[styles.cardIconWrapper, { backgroundColor: card.bg, borderColor: card.border }]}>
-                  <IconComponent size={20} color={card.color} />
-                </View>
-              </View>
-              <Text style={styles.cardValue}>{card.value}</Text>
+          {/* Business Name Badge */}
+          <View style={styles.businessBadge}>
+            <View style={styles.storeIconWrapper}>
+              <Store size={20} color="#10b981" />
             </View>
-          );
-        })}
-      </View>
-    </ScrollView>
+            <View style={styles.badgeTextWrapper}>
+              <Text style={styles.badgeLabel}>BIASHARA / DUKA</Text>
+              <Text style={styles.businessNameText} numberOfLines={1}>{businessName}</Text>
+            </View>
+          </View>
+        </View>
+
+        {/* Analytics Cards */}
+        <View style={styles.cardsGrid}>
+          {statCards.map((card, idx) => {
+            const IconComponent = card.icon;
+            return (
+              <View key={idx} style={styles.card}>
+                <View style={styles.cardHeader}>
+                  <Text style={styles.cardTitle}>{card.title}</Text>
+                  <View style={[styles.cardIconWrapper, { backgroundColor: card.bg, borderColor: card.border }]}>
+                    <IconComponent size={20} color={card.color} />
+                  </View>
+                </View>
+                <Text style={styles.cardValue}>{card.value}</Text>
+              </View>
+            );
+          })}
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#020617',
+  },
   container: {
-    padding: 16,
-    paddingBottom: 32,
+    paddingHorizontal: 16,
+    paddingTop: 16,
+    paddingBottom: 40,
     backgroundColor: '#020617',
     flexGrow: 1,
   },
@@ -188,6 +200,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     alignSelf: 'flex-start',
     gap: 12,
+    maxWidth: '100%',
   },
   storeIconWrapper: {
     padding: 8,
@@ -195,6 +208,9 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(16, 185, 129, 0.2)',
     borderWidth: 1,
     borderRadius: 12,
+  },
+  badgeTextWrapper: {
+    flexShrink: 1,
   },
   badgeLabel: {
     color: '#94a3b8',
@@ -230,6 +246,8 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     letterSpacing: 0.5,
     textTransform: 'uppercase',
+    flexShrink: 1,
+    marginRight: 8,
   },
   cardIconWrapper: {
     padding: 8,
